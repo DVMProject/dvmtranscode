@@ -1,0 +1,40 @@
+daemon: true
+log:
+    displayLevel: 1
+    fileLevel: 1
+    filePath: .
+    fileRoot: Transcode
+# Unless two-way transcode is enabled, the "srcNetwork" defines the P25
+# network.
+srcNetwork:
+    id: 100000
+    address: 127.0.0.1
+    port: 62031
+    jitter: 360
+    password: "PASSWORD"
+    slot1: true
+    slot2: true
+    debug: false
+# Unless two-way transcode is enabled, the "dstNetwork" defines the DMR
+# network.
+dstNetwork:
+    id: 100000
+    address: 127.0.0.1
+    port: 62031
+    jitter: 360
+    password: "PASSWORD"
+    slot1: true
+    slot2: true
+    debug: false
+system:
+    identity: ABCD123
+    timeout: 180
+    debug: false
+    verbose: false
+    twoWayTranscode: false
+    info:
+        latitude: 0.0
+        longitude: 0.0
+        height: 0
+        power: 10
+        location: "Repeater Site, USA"

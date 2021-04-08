@@ -1,0 +1,500 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\p25">
+      <UniqueIdentifier>{d76c896d-81a1-4571-a979-85bbe05f6ff2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dmr">
+      <UniqueIdentifier>{b48c6e95-0721-492e-b1ea-7ec159b0ad47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\edac">
+      <UniqueIdentifier>{6af8b815-9965-4986-b628-1dc3f551ec6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\p25">
+      <UniqueIdentifier>{9cbfad41-aaef-4b33-bfa5-1c6dd6c245c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\edac">
+      <UniqueIdentifier>{8e26b0a3-a3ad-4d67-bc50-c725212e96a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\network">
+      <UniqueIdentifier>{916a1400-af49-4141-912a-eb51ee88e24a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\network">
+      <UniqueIdentifier>{364613af-689a-40ff-9eb0-9ed75ec264d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\p25\lc">
+      <UniqueIdentifier>{77d81332-702f-487a-b155-dcc38f2831f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\p25\lc">
+      <UniqueIdentifier>{453ece82-3382-481b-b8a6-560f085e1d0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\yaml">
+      <UniqueIdentifier>{a085e2ea-d75f-4eef-b7f1-1cb100cd6323}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\yaml">
+      <UniqueIdentifier>{3f236928-1cc8-405c-a085-8a22404b5887}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\host">
+      <UniqueIdentifier>{5a6c9478-41b0-41e3-8511-4d58e7edc38f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\host">
+      <UniqueIdentifier>{f4690a68-efe2-4d42-a449-3b25d20d18a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\p25\data">
+      <UniqueIdentifier>{275c503f-78ed-4308-b263-e188a000f4ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dmr\data">
+      <UniqueIdentifier>{4fa1d8b7-bd75-4cf9-b8a7-5120d7f989fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dmr">
+      <UniqueIdentifier>{6c74dff0-0d31-48cc-a112-2fa7b9b4e2c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dmr\data">
+      <UniqueIdentifier>{6d5ceed7-73dc-4be7-884c-e25cbb93941d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\p25\data">
+      <UniqueIdentifier>{d077de78-774a-4673-8d5e-25dd97f65cd2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\vocoder">
+      <UniqueIdentifier>{72930f91-b7ca-4491-a951-bce50f316e5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\vocoder\imbe">
+      <UniqueIdentifier>{1a119e96-af40-44be-b511-9c1944d0c7ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\vocoder">
+      <UniqueIdentifier>{bf22d497-91b7-48f5-9547-ffa999001e01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\vocoder\imbe">
+      <UniqueIdentifier>{5a15a677-4505-463e-ac09-c0c659904a96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dmr\lc">
+      <UniqueIdentifier>{ed6863ee-e4cd-4294-88f8-ef992473dfc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dmr\lc">
+      <UniqueIdentifier>{76cb6bd3-92db-401d-8eb0-a01ef06d7c30}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RingBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StopWatch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mutex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="edac\AMBEFEC.h">
+      <Filter>Header Files\edac</Filter>
+    </ClInclude>
+    <ClInclude Include="edac\BCH.h">
+      <Filter>Header Files\edac</Filter>
+    </ClInclude>
+    <ClInclude Include="edac\BPTC19696.h">
+      <Filter>Header Files\edac</Filter>
+    </ClInclude>
+    <ClInclude Include="edac\CRC.h">
+      <Filter>Header Files\edac</Filter>
+    </ClInclude>
+    <ClInclude Include="edac\Golay2087.h">
+      <Filter>Header Files\edac</Filter>
+    </ClInclude>
+    <ClInclude Include="edac\Golay24128.h">
+      <Filter>Header Files\edac</Filter>
+    </ClInclude>
+    <ClInclude Include="edac\Hamming.h">
+      <Filter>Header Files\edac</Filter>
+    </ClInclude>
+    <ClInclude Include="edac\QR1676.h">
+      <Filter>Header Files\edac</Filter>
+    </ClInclude>
+    <ClInclude Include="edac\RS129.h">
+      <Filter>Header Files\edac</Filter>
+    </ClInclude>
+    <ClInclude Include="edac\SHA256.h">
+      <Filter>Header Files\edac</Filter>
+    </ClInclude>
+    <ClInclude Include="network\Network.h">
+      <Filter>Header Files\network</Filter>
+    </ClInclude>
+    <ClInclude Include="network\UDPSocket.h">
+      <Filter>Header Files\network</Filter>
+    </ClInclude>
+    <ClInclude Include="edac\RS634717.h">
+      <Filter>Header Files\edac</Filter>
+    </ClInclude>
+    <ClInclude Include="p25\P25Defines.h">
+      <Filter>Header Files\p25</Filter>
+    </ClInclude>
+    <ClInclude Include="p25\P25Utils.h">
+      <Filter>Header Files\p25</Filter>
+    </ClInclude>
+    <ClInclude Include="dmr\DMRDefines.h">
+      <Filter>Header Files\dmr</Filter>
+    </ClInclude>
+    <ClInclude Include="p25\lc\LC.h">
+      <Filter>Header Files\p25\lc</Filter>
+    </ClInclude>
+    <ClInclude Include="yaml\Yaml.h">
+      <Filter>Header Files\yaml</Filter>
+    </ClInclude>
+    <ClInclude Include="host\Host.h">
+      <Filter>Header Files\host</Filter>
+    </ClInclude>
+    <ClInclude Include="HostMain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="network\BaseNetwork.h">
+      <Filter>Header Files\network</Filter>
+    </ClInclude>
+    <ClInclude Include="p25\data\LowSpeedData.h">
+      <Filter>Header Files\p25\data</Filter>
+    </ClInclude>
+    <ClInclude Include="dmr\data\Data.h">
+      <Filter>Header Files\dmr\data</Filter>
+    </ClInclude>
+    <ClInclude Include="p25\Transcode.h">
+      <Filter>Header Files\p25</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\ecc_const.h">
+      <Filter>Header Files\vocoder</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe\aux_sub.h">
+      <Filter>Header Files\vocoder\imbe</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe\basic_op.h">
+      <Filter>Header Files\vocoder\imbe</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe\ch_decode.h">
+      <Filter>Header Files\vocoder\imbe</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe\ch_encode.h">
+      <Filter>Header Files\vocoder\imbe</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe\dc_rmv.h">
+      <Filter>Header Files\vocoder\imbe</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe\globals.h">
+      <Filter>Header Files\vocoder\imbe</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe\imbe.h">
+      <Filter>Header Files\vocoder\imbe</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe\imbe_vocoder.h">
+      <Filter>Header Files\vocoder\imbe</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe\math_sub.h">
+      <Filter>Header Files\vocoder\imbe</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe\pe_lpf.h">
+      <Filter>Header Files\vocoder\imbe</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe\pitch_est.h">
+      <Filter>Header Files\vocoder\imbe</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe\pitch_ref.h">
+      <Filter>Header Files\vocoder\imbe</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe\qnt_sub.h">
+      <Filter>Header Files\vocoder\imbe</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe\rand_gen.h">
+      <Filter>Header Files\vocoder\imbe</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe\sa_enh.h">
+      <Filter>Header Files\vocoder\imbe</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe\tbls.h">
+      <Filter>Header Files\vocoder\imbe</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe\typedef.h">
+      <Filter>Header Files\vocoder\imbe</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe\typedefs.h">
+      <Filter>Header Files\vocoder\imbe</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\ambe3600x2400_const.h">
+      <Filter>Header Files\vocoder</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\ambe3600x2450_const.h">
+      <Filter>Header Files\vocoder</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\imbe7200x4400_const.h">
+      <Filter>Header Files\vocoder</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\MBEDecoder.h">
+      <Filter>Header Files\vocoder</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\MBEEncoder.h">
+      <Filter>Header Files\vocoder</Filter>
+    </ClInclude>
+    <ClInclude Include="dmr\Transcode.h">
+      <Filter>Header Files\dmr</Filter>
+    </ClInclude>
+    <ClInclude Include="dmr\Slot.h">
+      <Filter>Header Files\dmr</Filter>
+    </ClInclude>
+    <ClInclude Include="dmr\SlotType.h">
+      <Filter>Header Files\dmr</Filter>
+    </ClInclude>
+    <ClInclude Include="dmr\lc\LC.h">
+      <Filter>Header Files\dmr\lc</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\mbe_const.h">
+      <Filter>Header Files\vocoder</Filter>
+    </ClInclude>
+    <ClInclude Include="vocoder\mbe.h">
+      <Filter>Header Files\vocoder</Filter>
+    </ClInclude>
+    <ClInclude Include="dmr\data\DataHeader.h">
+      <Filter>Header Files\dmr\data</Filter>
+    </ClInclude>
+    <ClInclude Include="dmr\data\EMB.h">
+      <Filter>Header Files\dmr\data</Filter>
+    </ClInclude>
+    <ClInclude Include="dmr\data\EmbeddedData.h">
+      <Filter>Header Files\dmr\data</Filter>
+    </ClInclude>
+    <ClInclude Include="dmr\lc\FullLC.h">
+      <Filter>Header Files\dmr\lc</Filter>
+    </ClInclude>
+    <ClInclude Include="dmr\Sync.h">
+      <Filter>Header Files\dmr</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Log.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StopWatch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Thread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mutex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="edac\AMBEFEC.cpp">
+      <Filter>Source Files\edac</Filter>
+    </ClCompile>
+    <ClCompile Include="edac\BCH.cpp">
+      <Filter>Source Files\edac</Filter>
+    </ClCompile>
+    <ClCompile Include="edac\BPTC19696.cpp">
+      <Filter>Source Files\edac</Filter>
+    </ClCompile>
+    <ClCompile Include="edac\CRC.cpp">
+      <Filter>Source Files\edac</Filter>
+    </ClCompile>
+    <ClCompile Include="edac\Golay2087.cpp">
+      <Filter>Source Files\edac</Filter>
+    </ClCompile>
+    <ClCompile Include="edac\Golay24128.cpp">
+      <Filter>Source Files\edac</Filter>
+    </ClCompile>
+    <ClCompile Include="edac\Hamming.cpp">
+      <Filter>Source Files\edac</Filter>
+    </ClCompile>
+    <ClCompile Include="edac\QR1676.cpp">
+      <Filter>Source Files\edac</Filter>
+    </ClCompile>
+    <ClCompile Include="edac\RS129.cpp">
+      <Filter>Source Files\edac</Filter>
+    </ClCompile>
+    <ClCompile Include="edac\SHA256.cpp">
+      <Filter>Source Files\edac</Filter>
+    </ClCompile>
+    <ClCompile Include="network\Network.cpp">
+      <Filter>Source Files\network</Filter>
+    </ClCompile>
+    <ClCompile Include="network\UDPSocket.cpp">
+      <Filter>Source Files\network</Filter>
+    </ClCompile>
+    <ClCompile Include="edac\RS634717.cpp">
+      <Filter>Source Files\edac</Filter>
+    </ClCompile>
+    <ClCompile Include="p25\lc\LC.cpp">
+      <Filter>Source Files\p25\lc</Filter>
+    </ClCompile>
+    <ClCompile Include="p25\P25Utils.cpp">
+      <Filter>Source Files\p25</Filter>
+    </ClCompile>
+    <ClCompile Include="yaml\Yaml.cpp">
+      <Filter>Source Files\yaml</Filter>
+    </ClCompile>
+    <ClCompile Include="host\Host.cpp">
+      <Filter>Source Files\host</Filter>
+    </ClCompile>
+    <ClCompile Include="HostMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\BaseNetwork.cpp">
+      <Filter>Source Files\network</Filter>
+    </ClCompile>
+    <ClCompile Include="dmr\data\Data.cpp">
+      <Filter>Source Files\dmr\data</Filter>
+    </ClCompile>
+    <ClCompile Include="p25\data\LowSpeedData.cpp">
+      <Filter>Source Files\p25\data</Filter>
+    </ClCompile>
+    <ClCompile Include="p25\Transcode.cpp">
+      <Filter>Source Files\p25</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\ecc.c">
+      <Filter>Source Files\vocoder</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\basic_op.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\aux_sub.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\ch_decode.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\ch_encode.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\dc_rmv.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\decode.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\dsp_sub.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\encode.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\imbe_vocoder.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\math_sub.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\pe_lpf.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\pitch_est.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\pitch_ref.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\qnt_sub.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\rand_gen.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\sa_decode.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\sa_encode.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\sa_enh.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\tbls.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\uv_synt.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\v_synt.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe\v_uv_det.cpp">
+      <Filter>Source Files\vocoder\imbe</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\ambe3600x2400.c">
+      <Filter>Source Files\vocoder</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\ambe3600x2450.c">
+      <Filter>Source Files\vocoder</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\imbe7200x4400.c">
+      <Filter>Source Files\vocoder</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\MBEDecoder.cpp">
+      <Filter>Source Files\vocoder</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\MBEEncoder.cpp">
+      <Filter>Source Files\vocoder</Filter>
+    </ClCompile>
+    <ClCompile Include="dmr\Slot.cpp">
+      <Filter>Source Files\dmr</Filter>
+    </ClCompile>
+    <ClCompile Include="dmr\SlotType.cpp">
+      <Filter>Source Files\dmr</Filter>
+    </ClCompile>
+    <ClCompile Include="dmr\Transcode.cpp">
+      <Filter>Source Files\dmr</Filter>
+    </ClCompile>
+    <ClCompile Include="dmr\lc\LC.cpp">
+      <Filter>Source Files\dmr\lc</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\mbe.c">
+      <Filter>Source Files\vocoder</Filter>
+    </ClCompile>
+    <ClCompile Include="vocoder\ambe3600x2250.c">
+      <Filter>Source Files\vocoder</Filter>
+    </ClCompile>
+    <ClCompile Include="dmr\data\DataHeader.cpp">
+      <Filter>Source Files\dmr\data</Filter>
+    </ClCompile>
+    <ClCompile Include="dmr\data\EMB.cpp">
+      <Filter>Source Files\dmr\data</Filter>
+    </ClCompile>
+    <ClCompile Include="dmr\data\EmbeddedData.cpp">
+      <Filter>Source Files\dmr\data</Filter>
+    </ClCompile>
+    <ClCompile Include="dmr\lc\FullLC.cpp">
+      <Filter>Source Files\dmr\lc</Filter>
+    </ClCompile>
+    <ClCompile Include="dmr\Sync.cpp">
+      <Filter>Source Files\dmr</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Makefile" />
+    <None Include="Makefile.arm" />
+    <None Include="Makefile.rpi-arm" />
+    <None Include="cpp.hint" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="config.yml" />
+  </ItemGroup>
+</Project>
