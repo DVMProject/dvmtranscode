@@ -408,96 +408,103 @@ void Slot::decodeAndProcessAMBE(uint8_t* ambe)
         ::memset(m_netLDU2, 0x00U, 9U * 25U);
     }
 
-    m_mbeDecode->processDmr(ambe);
-    pcmSamples = m_mbeDecode->getAudio(pcmSampleCount);
-    m_mbeDecode->resetAudio();
-    if (pcmSamples != NULL) {
-        if (pcmSampleCount > 0) {
-            uint8_t imbe[11U];
-            ::memset(imbe, 0x00U, 11U);
+    for (uint8_t i = 0; i < 3; i++) {
+        uint8_t ambePartial[9U];
+        ::memset(ambePartial, 0x00U, 9U);
 
-            m_mbeEncode->encode(pcmSamples, ambe);
+        ::memcpy(ambePartial, ambe + (i * 9U), 9U);
 
-            switch (m_p25N) {
-            // LDU1
-            case 0U:
-                ::memcpy(m_netLDU1 + 10U, imbe, 11U);
-                break;
-            case 1U:
-                ::memcpy(m_netLDU1 + 26U, imbe, 11U);
-                break;
-            case 2U:
-                ::memcpy(m_netLDU1 + 55U, imbe, 11U);
-                break;
-            case 3U:
-                ::memcpy(m_netLDU1 + 80U, imbe, 11U);
-                break;
-            case 4U:
-                ::memcpy(m_netLDU1 + 105U, imbe, 11U);
-                break;
-            case 5U:
-                ::memcpy(m_netLDU1 + 130U, imbe, 11U);
-                break;
-            case 6U:
-                ::memcpy(m_netLDU1 + 155U, imbe, 11U);
-                break;
-            case 7U:
-                ::memcpy(m_netLDU1 + 180U, imbe, 11U);
-                break;
-            case 8U:
-                ::memcpy(m_netLDU1 + 204U, imbe, 11U);
-                break;
+        m_mbeDecode->processDmr(ambePartial);
+        pcmSamples = m_mbeDecode->getAudio(pcmSampleCount);
+        m_mbeDecode->resetAudio();
+        if (pcmSamples != NULL) {
+            if (pcmSampleCount > 0) {
+                uint8_t imbe[11U];
+                ::memset(imbe, 0x00U, 11U);
 
-            // LDU2
-            case 9U:
-                ::memcpy(m_netLDU2 + 10U, imbe, 11U);
-                break;
-            case 10U:
-                ::memcpy(m_netLDU2 + 26U, imbe, 11U);
-                break;
-            case 11U:
-                ::memcpy(m_netLDU2 + 55U, imbe, 11U);
-                break;
-            case 12U:
-                ::memcpy(m_netLDU2 + 80U, imbe, 11U);
-                break;
-            case 13U:
-                ::memcpy(m_netLDU2 + 105U, imbe, 11U);
-                break;
-            case 14U:
-                ::memcpy(m_netLDU2 + 130U, imbe, 11U);
-                break;
-            case 15U:
-                ::memcpy(m_netLDU2 + 155U, imbe, 11U);
-                break;
-            case 16U:
-                ::memcpy(m_netLDU2 + 180U, imbe, 11U);
-                break;
-            case 17U:
-                ::memcpy(m_netLDU2 + 204U, imbe, 11U);
-                break;
-            }
+                m_mbeEncode->encode(pcmSamples, imbe);
 
-            // send P25 LDU1
-            if (m_p25N == 8U) {
-                if (m_verbose) {
-                    LogMessage(LOG_DMR, P25_LDU1_STR " audio, srcId = %u, dstId = %u, group = %u, emerg = %u, encrypt = %u, prio = %u",
-                        m_p25LC.getSrcId(), m_p25LC.getDstId(), m_p25LC.getGroup(), m_p25LC.getEmergency(), m_p25LC.getEncrypted(), m_p25LC.getPriority());
+                switch (m_p25N) {
+                    // LDU1
+                case 0U:
+                    ::memcpy(m_netLDU1 + 10U, imbe, 11U);
+                    break;
+                case 1U:
+                    ::memcpy(m_netLDU1 + 26U, imbe, 11U);
+                    break;
+                case 2U:
+                    ::memcpy(m_netLDU1 + 55U, imbe, 11U);
+                    break;
+                case 3U:
+                    ::memcpy(m_netLDU1 + 80U, imbe, 11U);
+                    break;
+                case 4U:
+                    ::memcpy(m_netLDU1 + 105U, imbe, 11U);
+                    break;
+                case 5U:
+                    ::memcpy(m_netLDU1 + 130U, imbe, 11U);
+                    break;
+                case 6U:
+                    ::memcpy(m_netLDU1 + 155U, imbe, 11U);
+                    break;
+                case 7U:
+                    ::memcpy(m_netLDU1 + 180U, imbe, 11U);
+                    break;
+                case 8U:
+                    ::memcpy(m_netLDU1 + 204U, imbe, 11U);
+                    break;
+
+                    // LDU2
+                case 9U:
+                    ::memcpy(m_netLDU2 + 10U, imbe, 11U);
+                    break;
+                case 10U:
+                    ::memcpy(m_netLDU2 + 26U, imbe, 11U);
+                    break;
+                case 11U:
+                    ::memcpy(m_netLDU2 + 55U, imbe, 11U);
+                    break;
+                case 12U:
+                    ::memcpy(m_netLDU2 + 80U, imbe, 11U);
+                    break;
+                case 13U:
+                    ::memcpy(m_netLDU2 + 105U, imbe, 11U);
+                    break;
+                case 14U:
+                    ::memcpy(m_netLDU2 + 130U, imbe, 11U);
+                    break;
+                case 15U:
+                    ::memcpy(m_netLDU2 + 155U, imbe, 11U);
+                    break;
+                case 16U:
+                    ::memcpy(m_netLDU2 + 180U, imbe, 11U);
+                    break;
+                case 17U:
+                    ::memcpy(m_netLDU2 + 204U, imbe, 11U);
+                    break;
                 }
 
-                m_dstNetwork->writeP25LDU1(m_p25LC, m_p25LSD, m_netLDU1);
-            }
+                // send P25 LDU1
+                if (m_p25N == 8U) {
+                    if (m_verbose) {
+                        LogMessage(LOG_DMR, P25_LDU1_STR " audio, srcId = %u, dstId = %u, group = %u, emerg = %u, encrypt = %u, prio = %u",
+                            m_p25LC.getSrcId(), m_p25LC.getDstId(), m_p25LC.getGroup(), m_p25LC.getEmergency(), m_p25LC.getEncrypted(), m_p25LC.getPriority());
+                    }
 
-            // send P25 LDU2
-            if (m_p25N == 17U) {
-                if (m_verbose) {
-                    LogMessage(LOG_DMR, P25_LDU2_STR " audio");
+                    m_dstNetwork->writeP25LDU1(m_p25LC, m_p25LSD, m_netLDU1);
                 }
 
-                m_dstNetwork->writeP25LDU2(m_p25LC, m_p25LSD, m_netLDU2);
-            }
+                // send P25 LDU2
+                if (m_p25N == 17U) {
+                    if (m_verbose) {
+                        LogMessage(LOG_DMR, P25_LDU2_STR " audio");
+                    }
 
-            m_p25N++;
+                    m_dstNetwork->writeP25LDU2(m_p25LC, m_p25LSD, m_netLDU2);
+                }
+
+                m_p25N++;
+            }
         }
     }
 }
