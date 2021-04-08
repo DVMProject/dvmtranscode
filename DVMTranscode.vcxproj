@@ -166,7 +166,6 @@
     <ClInclude Include="dmr\Sync.h" />
     <ClInclude Include="dmr\Transcode.h" />
     <ClInclude Include="edac\AMBEFEC.h" />
-    <ClInclude Include="edac\BCH.h" />
     <ClInclude Include="edac\BPTC19696.h" />
     <ClInclude Include="edac\CRC.h" />
     <ClInclude Include="edac\Golay2087.h" />
@@ -234,7 +233,6 @@
     <ClCompile Include="dmr\Sync.cpp" />
     <ClCompile Include="dmr\Transcode.cpp" />
     <ClCompile Include="edac\AMBEFEC.cpp" />
-    <ClCompile Include="edac\BCH.cpp" />
     <ClCompile Include="edac\BPTC19696.cpp" />
     <ClCompile Include="edac\CRC.cpp" />
     <ClCompile Include="edac\Golay2087.cpp" />

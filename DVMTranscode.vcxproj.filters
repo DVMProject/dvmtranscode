@@ -110,9 +110,6 @@
     <ClInclude Include="edac\AMBEFEC.h">
       <Filter>Header Files\edac</Filter>
     </ClInclude>
-    <ClInclude Include="edac\BCH.h">
-      <Filter>Header Files\edac</Filter>
-    </ClInclude>
     <ClInclude Include="edac\BPTC19696.h">
       <Filter>Header Files\edac</Filter>
     </ClInclude>
@@ -305,9 +302,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="edac\AMBEFEC.cpp">
-      <Filter>Source Files\edac</Filter>
-    </ClCompile>
-    <ClCompile Include="edac\BCH.cpp">
       <Filter>Source Files\edac</Filter>
     </ClCompile>
     <ClCompile Include="edac\BPTC19696.cpp">

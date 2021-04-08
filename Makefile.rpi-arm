@@ -7,7 +7,6 @@ LDFLAGS = -g
 
 OBJECTS = \
 		edac/AMBEFEC.o \
-		edac/BCH.o \
 		edac/BPTC19696.o \
 		edac/CRC.o \
 		edac/Golay2087.o \
