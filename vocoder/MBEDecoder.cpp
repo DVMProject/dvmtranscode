@@ -8,6 +8,7 @@
 */
 /*
 *   Copyright (C) 2019-2021 Doug McLain
+*   Copyright (C) 2021 by Bryan Biedenkapp N2PLL
 *
 *   This program is free software: you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by

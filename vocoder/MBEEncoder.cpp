@@ -8,6 +8,7 @@
 */
 /*
  * AMBE halfrate encoder - Copyright 2016 Max H. Parke KA1RBI
+ * Copyright (C) 2021 by Bryan Biedenkapp N2PLL
  *
  * This file is part of OP25 and part of GNU Radio
  *
