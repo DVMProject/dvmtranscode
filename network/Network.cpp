@@ -398,7 +398,7 @@ bool Network::writeAuthorisation()
 /// <returns></returns>
 bool Network::writeConfig()
 {
-    const char* software = "DVM_DMR_P25";
+    const char* software = "TCD_DMR_P25";
     char buffer[168U];
 
     ::memcpy(buffer + 0U, TAG_REPEATER_CONFIG, 4U);
