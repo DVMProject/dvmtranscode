@@ -77,6 +77,7 @@ Transcode::Transcode(network::BaseNetwork* srcNetwork, network::BaseNetwork* dst
     m_ambeCount(0U),
     m_dmrSeqNo(0U),
     m_dmrN(0U),
+    m_embeddedData(),
     m_mbeDecode(NULL),
     m_mbeEncode(NULL),
     m_verbose(verbose),
@@ -293,9 +294,6 @@ void Transcode::processNetwork()
             dmr::data::Data dmrData;
             dmrData.setSrcId(m_netLC.getSrcId());
             dmrData.setDstId(m_netLC.getDstId());
-            dmrData.setSlotNo(1U); // hardcoded to slot 1?
-            dmrData.setSeqNo(m_dmrSeqNo);
-            dmrData.setN(m_dmrN);
 
             if (m_netLC.getGroup()) {
                 dmrData.setFLCO(dmr::FLCO_GROUP);
@@ -317,7 +315,6 @@ void Transcode::processNetwork()
 
             // generate the Slot Type
             dmr::SlotType slotType;
-            slotType.setColorCode(0U); // hardcoded to color code 0?
             slotType.setDataType(dmr::DT_TERMINATOR_WITH_LC);
             slotType.encode(data);
 
@@ -338,6 +335,7 @@ void Transcode::processNetwork()
             m_ambeCount = 0U;
             m_dmrSeqNo = 0U;
             m_dmrN = 0U;
+            m_embeddedData = dmr::data::EmbeddedData();
 
             m_netTimeout.stop();
             m_networkWatchdog.stop();
@@ -363,14 +361,15 @@ void Transcode::decodeAndProcessIMBE(uint8_t* imbe)
     int pcmSampleCount = 0;
     int16_t* pcmSamples = NULL;
 
-    m_dmrN = m_dmrSeqNo % 6U;
-
     if (m_netState == RS_NET_IDLE) {
         m_netState = RS_NET_AUDIO;
 
         m_ambeCount = 0U;
         m_dmrSeqNo = 0U;
+        m_embeddedData = dmr::data::EmbeddedData();
     }
+
+    m_dmrN = m_dmrSeqNo % 6U;
 
     if (m_ambeCount == 3U) {
         if (m_dmrSeqNo == 0U) {
@@ -378,9 +377,6 @@ void Transcode::decodeAndProcessIMBE(uint8_t* imbe)
             dmr::data::Data dmrData;
             dmrData.setSrcId(m_netLC.getSrcId());
             dmrData.setDstId(m_netLC.getDstId());
-            dmrData.setSlotNo(1U); // hardcoded to slot 1?
-            dmrData.setSeqNo(m_dmrSeqNo);
-            dmrData.setN(m_dmrN);
 
             if (m_netLC.getGroup()) {
                 dmrData.setFLCO(dmr::FLCO_GROUP);
@@ -402,7 +398,6 @@ void Transcode::decodeAndProcessIMBE(uint8_t* imbe)
 
             // generate the Slot Type
             dmr::SlotType slotType;
-            slotType.setColorCode(0U); // hardcoded to color code 0?
             slotType.setDataType(dmr::DT_VOICE_LC_HEADER);
             slotType.encode(data);
 
@@ -429,7 +424,6 @@ void Transcode::decodeAndProcessIMBE(uint8_t* imbe)
         dmr::data::Data dmrData;
         dmrData.setSrcId(m_netLC.getSrcId());
         dmrData.setDstId(m_netLC.getDstId());
-        dmrData.setSlotNo(1U); // hardcoded to slot 1?
         dmrData.setSeqNo(m_dmrSeqNo);
         dmrData.setN(m_dmrN);
 
@@ -448,21 +442,10 @@ void Transcode::decodeAndProcessIMBE(uint8_t* imbe)
             Utils::dump(1U, "DMR AMBE Buffer", m_ambeBuffer, dmr::DMR_FRAME_LENGTH_BYTES);
         }
 
-        ::memcpy(data, m_ambeBuffer, 14U);
+        ::memcpy(data, m_ambeBuffer, 13U);
         data[13U] = m_ambeBuffer[13U] & 0xF0U;
         data[19U] = m_ambeBuffer[13U] & 0x0FU;
         ::memcpy(data + 20U, m_ambeBuffer + 14U, 13U);
-
-        // generate LC
-        dmr::lc::LC dmrLC;
-        dmrLC.setSrcId(dmrData.getSrcId());
-        dmrLC.setDstId(dmrData.getDstId());
-        dmrLC.setFLCO(dmrData.getFLCO());
-
-        dmr::data::EmbeddedData embeddedData;
-        embeddedData.setLC(dmrLC);
-
-        uint8_t lcss = embeddedData.getData(data, m_dmrN);
 
         if (m_debug) {
             Utils::dump(1U, "DMR Data Frame", data, dmr::DMR_FRAME_LENGTH_BYTES);
@@ -473,10 +456,21 @@ void Transcode::decodeAndProcessIMBE(uint8_t* imbe)
 
             // Convert the Voice Sync to be from the BS or MS as needed
             dmr::Sync::addDMRAudioSync(data, true); // hardcoded to duplex?
+
+            // generate LC
+            dmr::lc::LC dmrLC;
+            dmrLC.setSrcId(dmrData.getSrcId());
+            dmrLC.setDstId(dmrData.getDstId());
+            dmrLC.setFLCO(dmrData.getFLCO());
+
+            m_embeddedData.setLC(dmrLC);
         }
         else {
             dmrData.setDataType(dmr::DT_VOICE);
 
+            uint8_t lcss = m_embeddedData.getData(data, m_dmrN);
+
+            // generated embedded signalling
             dmr::data::EMB emb;
             emb.setColorCode(0U);
             emb.setLCSS(lcss);

@@ -32,6 +32,7 @@
 #define __P25_TRANSCODE_H__
 
 #include "Defines.h"
+#include "dmr/data/EmbeddedData.h"
 #include "network/BaseNetwork.h"
 #include "vocoder/MBEDecoder.h"
 #include "vocoder/MBEEncoder.h"
@@ -79,6 +80,7 @@ namespace p25
         uint8_t m_ambeCount;
         uint8_t m_dmrSeqNo;
         uint8_t m_dmrN;
+        dmr::data::EmbeddedData m_embeddedData;
 
         vocoder::MBEDecoder* m_mbeDecode;
         vocoder::MBEEncoder* m_mbeEncode;
