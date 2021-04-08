@@ -233,9 +233,36 @@ void Slot::processNetwork(const data::Data& dmrData)
         break;
     }
 
+    case DT_TERMINATOR_WITH_LC:
+    {
+        LogMessage(LOG_NET, "DMR Slot %u network end of voice transmission, %.1f seconds, %u%% packet loss, BER: %.1f%%",
+            m_slotNo, float(m_netFrames) / 16.667F, (m_netLost * 100U) / m_netFrames, float(m_netErrs * 100U) / float(m_netBits));
+
+        m_netState = RS_NET_IDLE;
+
+        m_networkWatchdog.stop();
+        m_netTimeoutTimer.stop();
+        m_packetTimer.stop();
+        m_netTimeout = false;
+
+        m_netFrames = 0U;
+        m_netLost = 0U;
+
+        m_netErrs = 0U;
+        m_netBits = 1U;
+
+        m_dstNetwork->writeP25TDU(m_p25LC, m_p25LSD);
+
+        m_p25LC.reset();
+        m_p25N = 0U;
+
+        ::memset(m_netLDU1, 0x00U, 9U * 25U);
+        ::memset(m_netLDU2, 0x00U, 9U * 25U);
+        break;
+    }
+
     case DT_VOICE_LC_HEADER:
     case DT_VOICE_PI_HEADER:
-    case DT_TERMINATOR_WITH_LC:
     case DT_DATA_HEADER:
     case DT_CSBK:
     case DT_RATE_12_DATA:
@@ -275,6 +302,27 @@ void Slot::clock()
             else {
                 ::LogInfoEx(LOG_DMR, "Slot %u network watchdog has expired", m_slotNo);
             }
+
+            m_netState = RS_NET_IDLE;
+
+            m_networkWatchdog.stop();
+            m_netTimeoutTimer.stop();
+            m_packetTimer.stop();
+            m_netTimeout = false;
+
+            m_netFrames = 0U;
+            m_netLost = 0U;
+
+            m_netErrs = 0U;
+            m_netBits = 1U;
+
+            m_dstNetwork->writeP25TDU(m_p25LC, m_p25LSD);
+
+            m_p25LC.reset();
+            m_p25N = 0U;
+
+            ::memset(m_netLDU1, 0x00U, 9U * 25U);
+            ::memset(m_netLDU2, 0x00U, 9U * 25U);
         }
     }
 
