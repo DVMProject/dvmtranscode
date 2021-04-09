@@ -331,7 +331,6 @@ void Transcode::processNetwork()
             m_ambeCount = 0U;
             m_dmrSeqNo = 0U;
             m_dmrN = 0U;
-            m_embeddedData = dmr::data::EmbeddedData();
 
             m_netTimeout.stop();
             m_networkWatchdog.stop();
@@ -359,7 +358,6 @@ void Transcode::decodeAndProcessIMBE(uint8_t* ldu)
 
         m_ambeCount = 0U;
         m_dmrSeqNo = 0U;
-        m_embeddedData = dmr::data::EmbeddedData();
     }
 
     for (uint8_t n = 0; n < 9; n++) {
