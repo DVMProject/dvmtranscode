@@ -59,9 +59,10 @@ using namespace p25;
 /// <param name="network">Instance of the BaseNetwork class representing the source network.</param>
 /// <param name="network">Instance of the BaseNetwork class representing the destination network.</param>
 /// <param name="timeout">Transmit timeout.</param>
+/// <param name="gainAdjust"></param>
 /// <param name="debug">Flag indicating whether P25 debug is enabled.</param>
 /// <param name="verbose">Flag indicating whether P25 verbose logging is enabled.</param>
-Transcode::Transcode(network::BaseNetwork* srcNetwork, network::BaseNetwork* dstNetwork, uint32_t timeout, bool debug, bool verbose) :
+Transcode::Transcode(network::BaseNetwork* srcNetwork, network::BaseNetwork* dstNetwork, uint32_t timeout, float gainAdjust, bool debug, bool verbose) :
     m_srcNetwork(srcNetwork),
     m_dstNetwork(dstNetwork),
     m_netState(RS_NET_IDLE),
@@ -100,7 +101,7 @@ Transcode::Transcode(network::BaseNetwork* srcNetwork, network::BaseNetwork* dst
 
     m_mbeDecode = new vocoder::MBEDecoder(vocoder::DECODE_88BIT_IMBE);
     m_mbeEncode = new vocoder::MBEEncoder(vocoder::ENCODE_DMR_AMBE);
-    m_mbeEncode->setGainAdjust(2.5); // this is excessive...
+    m_mbeEncode->setGainAdjust(gainAdjust);
 }
 
 /// <summary>
@@ -135,15 +136,16 @@ void Transcode::clock(uint32_t ms)
             if (m_netState == RS_NET_AUDIO) {
                 ::LogInfoEx(LOG_P25, "network watchdog has expired, %.1f seconds, %u%% packet loss",
                     float(m_netFrames) / 50.0F, (m_netLost * 100U) / m_netFrames);
+
+                writeNet_DMR_Terminator();
             }
             else {
                 ::LogInfoEx(LOG_P25, "network watchdog has expired");
             }
 
-            m_networkWatchdog.stop();
-
             m_netState = RS_NET_IDLE;
 
+            m_networkWatchdog.stop();
             m_netTimeout.stop();
         }
     }
@@ -289,53 +291,13 @@ void Transcode::processNetwork()
     case P25_DUID_TDU:
     case P25_DUID_TDULC:
         if (m_netState != RS_NET_IDLE) {
-            // send DMR voice header
-            dmr::data::Data dmrData;
-            dmrData.setSrcId(m_netLC.getSrcId());
-            dmrData.setDstId(m_netLC.getDstId());
+            writeNet_DMR_Terminator();
 
-            if (m_netLC.getGroup()) {
-                dmrData.setFLCO(dmr::FLCO_GROUP);
-            }
-            else {
-                dmrData.setFLCO(dmr::FLCO_PRIVATE);
-            }
-
-            dmrData.setDataType(dmr::DT_TERMINATOR_WITH_LC);
-
-            uint8_t data[dmr::DMR_FRAME_LENGTH_BYTES];
-            ::memset(data, 0x00U, dmr::DMR_FRAME_LENGTH_BYTES);
-
-            // generate LC
-            dmr::lc::LC dmrLC = dmr::lc::LC(dmrData.getFLCO(), dmrData.getSrcId(), dmrData.getDstId());
-
-            // generate the Slot Type
-            dmr::SlotType slotType;
-            slotType.setDataType(dmr::DT_TERMINATOR_WITH_LC);
-            slotType.encode(data);
-
-            dmr::lc::FullLC fullLC;
-            fullLC.encode(dmrLC, data, dmr::DT_TERMINATOR_WITH_LC);
-
-            // Convert the Data Sync to be from the BS or MS as needed
-            dmr::Sync::addDMRDataSync(data, true); // hardcoded to duplex?
-
-            if (m_verbose) {
-                LogMessage(LOG_P25, "DMR, end of voice transmission");
-            }
-
-            dmrData.setData(data);
-
-            m_dstNetwork->writeDMR(dmrData);
-            
-            m_ambeCount = 0U;
-            m_dmrSeqNo = 0U;
-            m_dmrN = 0U;
+            m_netState = RS_NET_IDLE;
 
             m_netTimeout.stop();
             m_networkWatchdog.stop();
             m_netLC.reset();
-            m_netState = RS_NET_IDLE;
         }
         break;
 
@@ -345,6 +307,91 @@ void Transcode::processNetwork()
     }
 
     delete data;
+}
+
+/// <summary>
+///
+/// </summary>
+void Transcode::writeNet_DMR_Terminator()
+{
+    // send DMR voice header
+    dmr::data::Data dmrData;
+    dmrData.setSrcId(m_netLC.getSrcId());
+    dmrData.setDstId(m_netLC.getDstId());
+
+    if (m_netLC.getGroup()) {
+        dmrData.setFLCO(dmr::FLCO_GROUP);
+    }
+    else {
+        dmrData.setFLCO(dmr::FLCO_PRIVATE);
+    }
+
+    uint32_t n = (m_dmrSeqNo - 3U) % 6U;
+    uint32_t fill = (6U - n);
+
+    if (n > 0U) {
+        for (uint32_t i = 0U; i < fill; i++) {
+            dmrData.setSeqNo(m_dmrSeqNo);
+            dmrData.setN(n);
+
+            dmrData.setDataType(dmr::DT_VOICE);
+
+            // generate DMR AMBE data
+            uint8_t data[dmr::DMR_FRAME_LENGTH_BYTES];
+            ::memset(data, 0x00U, dmr::DMR_FRAME_LENGTH_BYTES);
+            ::memcpy(data, dmr::DMR_SILENCE_DATA, dmr::DMR_FRAME_LENGTH_BYTES);
+
+            uint8_t lcss = m_embeddedData.getData(data, m_dmrN);
+
+            // generated embedded signalling
+            dmr::data::EMB emb;
+            emb.setColorCode(0U);
+            emb.setLCSS(lcss);
+            emb.encode(data);
+
+            if (m_verbose) {
+                LogMessage(LOG_P25, "DMR, DT_VOICE audio, sequence no = %u", m_dmrN);
+            }
+
+            dmrData.setData(data);
+
+            m_dstNetwork->writeDMR(dmrData);
+
+            n++;
+            m_dmrSeqNo++;
+        }
+    }
+
+    dmrData.setDataType(dmr::DT_TERMINATOR_WITH_LC);
+
+    uint8_t data[dmr::DMR_FRAME_LENGTH_BYTES];
+    ::memset(data, 0x00U, dmr::DMR_FRAME_LENGTH_BYTES);
+
+    // generate LC
+    dmr::lc::LC dmrLC = dmr::lc::LC(dmrData.getFLCO(), dmrData.getSrcId(), dmrData.getDstId());
+
+    // generate the Slot Type
+    dmr::SlotType slotType;
+    slotType.setDataType(dmr::DT_TERMINATOR_WITH_LC);
+    slotType.encode(data);
+
+    dmr::lc::FullLC fullLC;
+    fullLC.encode(dmrLC, data, dmr::DT_TERMINATOR_WITH_LC);
+
+    // Convert the Data Sync to be from the BS or MS as needed
+    dmr::Sync::addDMRDataSync(data, true); // hardcoded to duplex?
+
+    if (m_verbose) {
+        LogMessage(LOG_P25, "DMR, end of voice transmission");
+    }
+
+    dmrData.setData(data);
+
+    m_dstNetwork->writeDMR(dmrData);
+
+    m_ambeCount = 0U;
+    m_dmrSeqNo = 0U;
+    m_dmrN = 0U;
 }
 
 /// <summary>
@@ -384,6 +431,7 @@ void Transcode::decodeAndProcessIMBE(uint8_t* ldu)
 
                 // generate LC
                 dmr::lc::LC dmrLC = dmr::lc::LC(dmrData.getFLCO(), dmrData.getSrcId(), dmrData.getDstId());
+                m_embeddedData.setLC(dmrLC);
 
                 // generate the Slot Type
                 dmr::SlotType slotType;
@@ -441,10 +489,6 @@ void Transcode::decodeAndProcessIMBE(uint8_t* ldu)
             }
 
             if (m_dmrN == 0U) {
-                // generate LC
-                dmr::lc::LC dmrLC = dmr::lc::LC(dmrData.getFLCO(), dmrData.getSrcId(), dmrData.getDstId());
-                m_embeddedData.setLC(dmrLC);
-
                 dmrData.setDataType(dmr::DT_VOICE_SYNC);
 
                 // Convert the Voice Sync to be from the BS or MS as needed

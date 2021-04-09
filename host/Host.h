@@ -60,6 +60,12 @@ private:
     network::Network* m_srcNetwork;
     network::Network* m_dstNetwork;
 
+    uint32_t m_srcJitter;
+    uint32_t m_dstJitter;
+
+    float m_p25GainAdjust;
+    float m_dmrGainAdjust;
+
     uint32_t m_timeout;
 
     std::string m_identity;

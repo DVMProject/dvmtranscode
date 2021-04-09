@@ -346,10 +346,12 @@ void Slot::clock()
 /// Helper to initialize the DMR slot processor.
 /// </summary>
 /// <param name="jitter"></param>
-void Slot::init(uint32_t jitter)
+/// <param name="gainAdjust"></param>
+void Slot::init(uint32_t jitter, float gainAdjust)
 {
     m_mbeDecode = new vocoder::MBEDecoder(vocoder::DECODE_DMR_AMBE);
     m_mbeEncode = new vocoder::MBEEncoder(vocoder::ENCODE_88BIT_IMBE);
+    m_mbeEncode->setGainAdjust(gainAdjust);
 
     m_jitterTime = jitter;
 

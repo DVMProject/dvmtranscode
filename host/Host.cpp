@@ -65,6 +65,10 @@ Host::Host(const std::string& confFile) :
     m_conf(),
     m_srcNetwork(NULL),
     m_dstNetwork(NULL),
+    m_srcJitter(360),
+    m_dstJitter(360),
+    m_p25GainAdjust(0.0f),
+    m_dmrGainAdjust(0.0f),
     m_timeout(180U),
     m_identity(),
     m_latitude(0.0F),
@@ -169,20 +173,18 @@ int Host::run()
     if (!ret)
         return EXIT_FAILURE;
 
-    uint32_t jitter = m_conf["network"]["jitter"].as<uint32_t>(360U);
-
-    // initialize DMR
-    dmr::Transcode* dmrSrcTranscoder = new dmr::Transcode(m_dstNetwork, m_srcNetwork, m_timeout, jitter, m_tcDebug, m_tcVerbose);
+    // initialize DMR -> P25 transcoder
+    dmr::Transcode* dmrSrcTranscoder = new dmr::Transcode(m_dstNetwork, m_srcNetwork, m_timeout, m_dstJitter, m_p25GainAdjust, m_tcDebug, m_tcVerbose);
     dmr::Transcode* dmrDstTranscoder = NULL;
     if (m_twoWayTranscode) {
-         dmrDstTranscoder = new dmr::Transcode(m_srcNetwork, m_dstNetwork, m_timeout, jitter, m_tcDebug, m_tcVerbose);
+         dmrDstTranscoder = new dmr::Transcode(m_srcNetwork, m_dstNetwork, m_timeout, m_srcJitter, m_p25GainAdjust, m_tcDebug, m_tcVerbose);
     }
 
-    // initialize P25
-    p25::Transcode* p25SrcTranscoder = new p25::Transcode(m_srcNetwork, m_dstNetwork, m_timeout, m_tcDebug, m_tcVerbose);
+    // initialize P25 -> DMR transcoder
+    p25::Transcode* p25SrcTranscoder = new p25::Transcode(m_srcNetwork, m_dstNetwork, m_timeout, m_dmrGainAdjust, m_tcDebug, m_tcVerbose);
     p25::Transcode* p25DstTranscoder = NULL;
     if (m_twoWayTranscode) {
-        p25DstTranscoder = new p25::Transcode(m_dstNetwork, m_srcNetwork, m_timeout, m_tcDebug, m_tcVerbose);
+        p25DstTranscoder = new p25::Transcode(m_dstNetwork, m_srcNetwork, m_timeout, m_dmrGainAdjust, m_tcDebug, m_tcVerbose);
     }
 
     StopWatch stopWatch;
@@ -231,11 +233,13 @@ int Host::run()
 
         if (dmrSrcTranscoder != NULL)
             dmrSrcTranscoder->clock();
-        if (dmrDstTranscoder != NULL)
-            dmrDstTranscoder->clock();
 
         if (p25SrcTranscoder != NULL)
             p25SrcTranscoder->clock(ms);
+
+        if (dmrDstTranscoder != NULL)
+            dmrDstTranscoder->clock();
+
         if (p25DstTranscoder != NULL)
             p25DstTranscoder->clock(ms);
 
@@ -295,6 +299,8 @@ bool Host::readParams()
     m_twoWayTranscode = systemConf["twoWayTranscode"].as<bool>(false);
     m_tcVerbose = systemConf["verbose"].as<bool>(true);
     m_tcDebug = systemConf["debug"].as<bool>(true);
+    m_p25GainAdjust = systemConf["p25GainAdjust"].as<float>(0.0f);
+    m_dmrGainAdjust = systemConf["dmrGainAdjust"].as<float>(2.5f);
 
     removeLockFile();
 
@@ -303,6 +309,8 @@ bool Host::readParams()
     LogInfo("    Identity: %s", m_identity.c_str());
     LogInfo("    Lock Filename: %s", g_lockFile.c_str());
     LogInfo("    Two-way Transcode: %s", m_twoWayTranscode ? "enabled" : "disabled");
+    LogInfo("    P25 Gain Adjust: %f", m_p25GainAdjust);
+    LogInfo("    DMR Gain Adjust: %f", m_dmrGainAdjust);
 
     if (m_tcVerbose) {
         LogInfo("    Verbose: yes");
@@ -360,6 +368,8 @@ bool Host::createSrcNetwork()
         LogInfo("    Debug: yes");
     }
 
+    m_srcJitter = jitter;
+
     m_srcNetwork = new Network(address, port, local, id, password, true, debug, slot1, slot2);
     m_srcNetwork->setMetadata(m_identity, 0, 0, 0.0F, 0.0F, 0, 0, 0, m_latitude, m_longitude, m_height, m_location);
 
@@ -407,6 +417,8 @@ bool Host::createDstNetwork()
     if (debug) {
         LogInfo("    Debug: yes");
     }
+
+    m_dstJitter = jitter;
 
     m_dstNetwork = new Network(address, port, local, id, password, true, debug, slot1, slot2);
     m_dstNetwork->setMetadata(m_identity, 0, 0, 0.0F, 0.0F, 0, 0, 0, m_latitude, m_longitude, m_height, m_location);

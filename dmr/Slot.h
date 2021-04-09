@@ -71,7 +71,7 @@ namespace dmr
         void clock();
 
         /// <summary>Helper to initialize the slot processor.</summary>
-        static void init(uint32_t jitter);
+        static void init(uint32_t jitter, float gainAdjust);
 
     private:
         friend class Transcode;

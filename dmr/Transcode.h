@@ -51,7 +51,7 @@ namespace dmr
     class HOST_SW_API Transcode {
     public:
         /// <summary>Initializes a new instance of the Transcode class.</summary>
-        Transcode(network::BaseNetwork* srcNetwork, network::BaseNetwork* dstNetwork, uint32_t timeout, uint32_t jitter, bool debug, bool verbose);
+        Transcode(network::BaseNetwork* srcNetwork, network::BaseNetwork* dstNetwork, uint32_t timeout, uint32_t jitter, float gainAdjust, bool debug, bool verbose);
         /// <summary>Finalizes a instance of the Transcode class.</summary>
         ~Transcode();
 

@@ -43,9 +43,10 @@ using namespace dmr;
 /// <param name="network">Instance of the BaseNetwork class representing the destination network.</param>
 /// <param name="timeout">Transmit timeout.</param>
 /// <param name="jitter"></param>
+/// <param name="gainAdjust"></param>
 /// <param name="debug">Flag indicating whether DMR debug is enabled.</param>
 /// <param name="verbose">Flag indicating whether DMR verbose logging is enabled.</param>
-Transcode::Transcode(network::BaseNetwork* srcNetwork, network::BaseNetwork* dstNetwork, uint32_t timeout, uint32_t jitter, bool debug, bool verbose) :
+Transcode::Transcode(network::BaseNetwork* srcNetwork, network::BaseNetwork* dstNetwork, uint32_t timeout, uint32_t jitter, float gainAdjust, bool debug, bool verbose) :
     m_srcNetwork(srcNetwork),
     m_dstNetwork(dstNetwork),
     m_slot1(NULL),
@@ -56,7 +57,7 @@ Transcode::Transcode(network::BaseNetwork* srcNetwork, network::BaseNetwork* dst
     assert(srcNetwork != NULL);
     assert(dstNetwork != NULL);
 
-    Slot::init(jitter);
+    Slot::init(jitter, gainAdjust);
     
     m_slot1 = new Slot(1U, srcNetwork, dstNetwork, timeout, debug, verbose);
     m_slot2 = new Slot(2U, srcNetwork, dstNetwork, timeout, debug, verbose);

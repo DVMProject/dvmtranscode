@@ -598,7 +598,9 @@ void MBEEncoder::encode(int16_t samples[], uint8_t codeword[])
     // first do speech analysis to generate mbe model parameters
     m_vocoder.imbe_encode(frame_vector, samples);
     if (m_mbeMode == ENCODE_88BIT_IMBE) {
-        //vocoder.set_gain_adjust(1.0);
+        if (m_gainAdjust >= 1.0f) {
+            m_vocoder.set_gain_adjust(m_gainAdjust);
+        }
 
         uint32_t offset = 0U;
         int16_t mask = 0x0800;

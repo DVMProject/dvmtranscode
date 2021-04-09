@@ -32,6 +32,8 @@ system:
     debug: false
     verbose: false
     twoWayTranscode: false
+    p25GainAdjust: 0.0
+    dmrGainAdjust: 2.5
     info:
         latitude: 0.0
         longitude: 0.0
