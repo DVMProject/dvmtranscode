@@ -166,64 +166,12 @@ static const short b0_lookup[] = {
 /// <summary>
 /// 
 /// </summary>
-/// <param name="dest"></param>
-/// <param name="src"></param>
-/// <param name="count"></param>
-static void dump_i(uint8_t dest[], int src, int count)
-{
-    for (int i = 0; i < count; i++) {
-        dest[i] = src & 1;
-        src = src >> 1;
-    }
-}
-
-/// <summary>
-/// 
-/// </summary>
-/// <param name="reg"></param>
-/// <param name="val"></param>
-/// <param name="len"></param>
-static inline void store_reg(int reg, uint8_t val[], int len)
-{
-    for (int i = 0; i < len; i++) {
-        val[i] = (reg >> (len - 1 - i)) & 1;
-    }
-}
-
-/// <summary>
-/// 
-/// </summary>
-/// <param name="val"></param>
-/// <param name="len"></param>
-/// <returns></returns>
-static inline int load_reg(const uint8_t val[], int len)
-{
-    int acc = 0;
-    for (int i = 0; i < len; i++) {
-        acc = (acc << 1) + (val[i] & 1);
-    }
-    return acc;
-}
-
-/// <summary>
-/// 
-/// </summary>
-/// <param name="b0"></param>
-/// <returns></returns>
-static inline float make_f0(int b0)
-{
-    return (powf(2, (-4.311767578125 - (2.1336e-2 * ((float)b0 + 0.5)))));
-}
-
-/// <summary>
-/// 
-/// </summary>
 /// <param name="imbe_param"></param>
 /// <param name="b"></param>
 /// <param name="cur_mp"></param>
 /// <param name="prev_mp"></param>
-/// <param name="gain_adjust"></param>
-static void encode_ambe(const IMBE_PARAM* imbe_param, int b[], mbe_parms* cur_mp, mbe_parms* prev_mp, float gain_adjust)
+/// <param name="gainAdjust"></param>
+static void encodeAMBE(const IMBE_PARAM* imbe_param, int b[], mbe_parms* cur_mp, mbe_parms* prev_mp, float gainAdjust)
 {
     static const float SQRT_2 = sqrtf(2.0);
     static const int b0_lmax = sizeof(b0_lookup) / sizeof(b0_lookup[0]);
@@ -302,7 +250,7 @@ static void encode_ambe(const IMBE_PARAM* imbe_param, int b[], mbe_parms* cur_mp
     float gain = lsa_sum / num_harms_f;
     float diff_gain = gain - 0.5 * prev_mp->gamma;
 
-    diff_gain -= gain_adjust;
+    diff_gain -= gainAdjust;
 
     float error;
     int error_index;
@@ -513,194 +461,67 @@ static void encode_ambe(const IMBE_PARAM* imbe_param, int b[], mbe_parms* cur_mp
 /// <summary>
 /// 
 /// </summary>
-/// <param name="outp"></param>
+/// <param name="bits"></param>
 /// <param name="b"></param>
-static void encode_49bit(uint8_t outp[49], const int b[9])
+static void encode49bit(uint8_t bits[49], const int b[9])
 {
-    outp[0] = (b[0] >> 6) & 1;
-    outp[1] = (b[0] >> 5) & 1;
-    outp[2] = (b[0] >> 4) & 1;
-    outp[3] = (b[0] >> 3) & 1;
-    outp[4] = (b[1] >> 4) & 1;
-    outp[5] = (b[1] >> 3) & 1;
-    outp[6] = (b[1] >> 2) & 1;
-    outp[7] = (b[1] >> 1) & 1;
-    outp[8] = (b[2] >> 4) & 1;
-    outp[9] = (b[2] >> 3) & 1;
-    outp[10] = (b[2] >> 2) & 1;
-    outp[11] = (b[2] >> 1) & 1;
-    outp[12] = (b[3] >> 8) & 1;
-    outp[13] = (b[3] >> 7) & 1;
-    outp[14] = (b[3] >> 6) & 1;
-    outp[15] = (b[3] >> 5) & 1;
-    outp[16] = (b[3] >> 4) & 1;
-    outp[17] = (b[3] >> 3) & 1;
-    outp[18] = (b[3] >> 2) & 1;
-    outp[19] = (b[3] >> 1) & 1;
-    outp[20] = (b[4] >> 6) & 1;
-    outp[21] = (b[4] >> 5) & 1;
-    outp[22] = (b[4] >> 4) & 1;
-    outp[23] = (b[4] >> 3) & 1;
-    outp[24] = (b[5] >> 4) & 1;
-    outp[25] = (b[5] >> 3) & 1;
-    outp[26] = (b[5] >> 2) & 1;
-    outp[27] = (b[5] >> 1) & 1;
-    outp[28] = (b[6] >> 3) & 1;
-    outp[29] = (b[6] >> 2) & 1;
-    outp[30] = (b[6] >> 1) & 1;
-    outp[31] = (b[7] >> 3) & 1;
-    outp[32] = (b[7] >> 2) & 1;
-    outp[33] = (b[7] >> 1) & 1;
-    outp[34] = (b[8] >> 2) & 1;
-    outp[35] = b[1] & 1;
-    outp[36] = b[2] & 1;
-    outp[37] = (b[0] >> 2) & 1;
-    outp[38] = (b[0] >> 1) & 1;
-    outp[39] = b[0] & 1;
-    outp[40] = b[3] & 1;
-    outp[41] = (b[4] >> 2) & 1;
-    outp[42] = (b[4] >> 1) & 1;
-    outp[43] = b[4] & 1;
-    outp[44] = b[5] & 1;
-    outp[45] = b[6] & 1;
-    outp[46] = b[7] & 1;
-    outp[47] = (b[8] >> 1) & 1;
-    outp[48] = b[8] & 1;
+    bits[0] = (b[0] >> 6) & 1;
+    bits[1] = (b[0] >> 5) & 1;
+    bits[2] = (b[0] >> 4) & 1;
+    bits[3] = (b[0] >> 3) & 1;
+    bits[4] = (b[1] >> 4) & 1;
+    bits[5] = (b[1] >> 3) & 1;
+    bits[6] = (b[1] >> 2) & 1;
+    bits[7] = (b[1] >> 1) & 1;
+    bits[8] = (b[2] >> 4) & 1;
+    bits[9] = (b[2] >> 3) & 1;
+    bits[10] = (b[2] >> 2) & 1;
+    bits[11] = (b[2] >> 1) & 1;
+    bits[12] = (b[3] >> 8) & 1;
+    bits[13] = (b[3] >> 7) & 1;
+    bits[14] = (b[3] >> 6) & 1;
+    bits[15] = (b[3] >> 5) & 1;
+    bits[16] = (b[3] >> 4) & 1;
+    bits[17] = (b[3] >> 3) & 1;
+    bits[18] = (b[3] >> 2) & 1;
+    bits[19] = (b[3] >> 1) & 1;
+    bits[20] = (b[4] >> 6) & 1;
+    bits[21] = (b[4] >> 5) & 1;
+    bits[22] = (b[4] >> 4) & 1;
+    bits[23] = (b[4] >> 3) & 1;
+    bits[24] = (b[5] >> 4) & 1;
+    bits[25] = (b[5] >> 3) & 1;
+    bits[26] = (b[5] >> 2) & 1;
+    bits[27] = (b[5] >> 1) & 1;
+    bits[28] = (b[6] >> 3) & 1;
+    bits[29] = (b[6] >> 2) & 1;
+    bits[30] = (b[6] >> 1) & 1;
+    bits[31] = (b[7] >> 3) & 1;
+    bits[32] = (b[7] >> 2) & 1;
+    bits[33] = (b[7] >> 1) & 1;
+    bits[34] = (b[8] >> 2) & 1;
+    bits[35] = b[1] & 1;
+    bits[36] = b[2] & 1;
+    bits[37] = (b[0] >> 2) & 1;
+    bits[38] = (b[0] >> 1) & 1;
+    bits[39] = b[0] & 1;
+    bits[40] = b[3] & 1;
+    bits[41] = (b[4] >> 2) & 1;
+    bits[42] = (b[4] >> 1) & 1;
+    bits[43] = b[4] & 1;
+    bits[44] = b[5] & 1;
+    bits[45] = b[6] & 1;
+    bits[46] = b[7] & 1;
+    bits[47] = (b[8] >> 1) & 1;
+    bits[48] = b[8] & 1;
 }
 
-// ---------------------------------------------------------------------------
-//  Public Class Members
-// ---------------------------------------------------------------------------
-/// <summary>
-/// Initializes a new instance of the MBEDecoder class.
-/// </summary>
-MBEEncoder::MBEEncoder() :
-    m_49bitMode(false),
-    m_dmrMode(false),
-    m_88bitMode(false),
-    m_gainAdjust(0)
-{
-    mbe_parms enh_mp;
-    mbe_initMbeParms(&m_curMBEParms, &m_prevMBEParms, &enh_mp);
-}
-
-/// <summary>
-/// 
-/// </summary>
-void MBEEncoder::set49bitMode()
-{
-    m_88bitMode = false;
-    m_49bitMode = true;
-}
-
-/// <summary>
-/// 
-/// </summary>
-void MBEEncoder::setDmrMode()
-{
-    m_dmrMode = true;
-}
-
-/// <summary>
-/// 
-/// </summary>
-void MBEEncoder::set88bitMode()
-{
-    m_49bitMode = false;
-    m_88bitMode = true;
-}
-
-// given a buffer of 160 audio samples (S16_LE),
-// generate 72-bit ambe codeword (as 36 dibits in codeword[])
-// (as 72 bits in codeword[] if in dstar mode)
-// or 49-bit output codeword (if set_49bit_mode() has been called)
-void MBEEncoder::encode(int16_t samples[], uint8_t codeword[])
-{
-    int b[9];
-    unsigned char dmr[9];
-    int16_t frame_vector[8];	// result ignored
-    uint8_t ambe_bytes[9];
-    memset(ambe_bytes, 0, 9);
-    memset(dmr, 0, 9);
-    //memset (b, 0, 9);
-
-    // first do speech analysis to generate mbe model parameters
-    m_vocoder.imbe_encode(frame_vector, samples);
-    if (m_88bitMode) {
-        //vocoder.set_gain_adjust(1.0);
-        unsigned int offset = 0U;
-        int16_t mask = 0x0800;
-        for (unsigned int i = 0U; i < 12U; i++, mask >>= 1, offset++)
-            WRITE_BIT(codeword, offset, (frame_vector[0U] & mask) != 0);
-
-        mask = 0x0800;
-        for (unsigned int i = 0U; i < 12U; i++, mask >>= 1, offset++)
-            WRITE_BIT(codeword, offset, (frame_vector[1U] & mask) != 0);
-
-        mask = 0x0800;
-        for (unsigned int i = 0U; i < 12U; i++, mask >>= 1, offset++)
-            WRITE_BIT(codeword, offset, (frame_vector[2U] & mask) != 0);
-
-        mask = 0x0800;
-        for (unsigned int i = 0U; i < 12U; i++, mask >>= 1, offset++)
-            WRITE_BIT(codeword, offset, (frame_vector[3U] & mask) != 0);
-
-        mask = 0x0400;
-        for (unsigned int i = 0U; i < 11U; i++, mask >>= 1, offset++)
-            WRITE_BIT(codeword, offset, (frame_vector[4U] & mask) != 0);
-
-        mask = 0x0400;
-        for (unsigned int i = 0U; i < 11U; i++, mask >>= 1, offset++)
-            WRITE_BIT(codeword, offset, (frame_vector[5U] & mask) != 0);
-
-        mask = 0x0400;
-        for (unsigned int i = 0U; i < 11U; i++, mask >>= 1, offset++)
-            WRITE_BIT(codeword, offset, (frame_vector[6U] & mask) != 0);
-
-        mask = 0x0040;
-        for (unsigned int i = 0U; i < 7U; i++, mask >>= 1, offset++)
-            WRITE_BIT(codeword, offset, (frame_vector[7U] & mask) != 0);
-        return;
-    }
-
-    // halfrate audio encoding - output rate is 2450 (49 bits)
-    encode_ambe(m_vocoder.param(), b, &m_curMBEParms, &m_prevMBEParms, m_gainAdjust);
-
-    if (m_49bitMode) {
-        encode_49bit(codeword, b);
-    }
-    else if (m_dmrMode) {
-        encode_49bit(codeword, b);
-        for (int i = 0; i < 9; ++i) {
-            for (int j = 0; j < 8; ++j) {
-                //ambe_bytes[i] |= (ambe_frame[((8-i)*8)+(7-j)] << (7-j));
-                ambe_bytes[i] |= (codeword[(i * 8) + j] << (7 - j));
-            }
-        }
-
-        encodeDmr(ambe_bytes, dmr);
-        memcpy(codeword, dmr, 9);
-        // add FEC and interleaving - output rate is 3600 (72 bits)
-        //encode_vcw(codeword, b);
-    }
-
-    for (int i = 0; i < 9; ++i) {
-        for (int j = 0; j < 8; ++j) {
-            //ambe_bytes[i] |= (ambe_frame[((8-i)*8)+(7-j)] << (7-j));
-            ambe_bytes[i] |= (codeword[(i * 8) + j] << (7 - j));
-        }
-    }
-}
-
-// ---------------------------------------------------------------------------
-//  Private Class Members
-// ---------------------------------------------------------------------------
 /// <summary>
 /// 
 /// </summary>
 /// <param name="in"></param>
 /// <param name="out"></param>
-void MBEEncoder::encodeDmr(const unsigned char* in, unsigned char* out)
+static void encodeDmrAMBE(const uint8_t* in, uint8_t* out)
 {
     unsigned int aOrig = 0U;
     unsigned int bOrig = 0U;
@@ -733,160 +554,112 @@ void MBEEncoder::encodeDmr(const unsigned char* in, unsigned char* out)
 
     MASK = 0x800000U;
     for (unsigned int i = 0U; i < 24U; i++, MASK >>= 1) {
-        unsigned int aPos = DMR_A_TABLE[i];
+        unsigned int aPos = DMR_VC_A_TABLE[i];
         WRITE_BIT(out, aPos, a & MASK);
     }
 
     MASK = 0x400000U;
     for (unsigned int i = 0U; i < 23U; i++, MASK >>= 1) {
-        unsigned int bPos = DMR_B_TABLE[i];
+        unsigned int bPos = DMR_VC_B_TABLE[i];
         WRITE_BIT(out, bPos, b & MASK);
     }
 
     MASK = 0x1000000U;
     for (unsigned int i = 0U; i < 25U; i++, MASK >>= 1) {
-        unsigned int cPos = DMR_C_TABLE[i];
+        unsigned int cPos = DMR_VC_C_TABLE[i];
         WRITE_BIT(out, cPos, cOrig & MASK);
     }
 }
 
+// ---------------------------------------------------------------------------
+//  Public Class Members
+// ---------------------------------------------------------------------------
 /// <summary>
-/// 
+/// Initializes a new instance of the MBEDecoder class.
 /// </summary>
-/// <param name="vf"></param>
-/// <param name="b"></param>
-void MBEEncoder::encodeVcw(uint8_t vf[], const int* b)
+/// <param name="mode"></param>
+MBEEncoder::MBEEncoder(MBE_ENCODER_MODE mode) :
+    m_mbeMode(mode),
+    m_gainAdjust(0.0f)
 {
-    uint32_t c0, c1, c2, c3;
-    int u0, u1, u2, u3;
-
-    u0 = \
-        ((b[0] & 0x78) << 5) | \
-        ((b[1] & 0x1e) << 3) | \
-        ((b[2] & 0x1e) >> 1);
-    u1 = \
-        ((b[3] & 0x1fe) << 3) | \
-        ((b[4] & 0x78) >> 3);
-    u2 = \
-        ((b[5] & 0x1e) << 6) | \
-        ((b[6] & 0xe) << 3) | \
-        ((b[7] & 0xe)) | \
-        ((b[8] & 0x4) >> 2);
-    u3 = \
-        ((b[1] & 0x1) << 13) | \
-        ((b[2] & 0x1) << 12) | \
-        ((b[0] & 0x7) << 9) | \
-        ((b[3] & 0x1) << 8) | \
-        ((b[4] & 0x7) << 5) | \
-        ((b[5] & 0x1) << 4) | \
-        ((b[6] & 0x1) << 3) | \
-        ((b[7] & 0x1) << 2) | \
-        ((b[8] & 0x3));
-
-    int m1 = PRNG_TABLE[u0] >> 1;
-    c0 = Golay24128::encode24128(u0);
-    c1 = Golay24128::encode23127(u1) ^ m1;
-    c2 = u2;
-    c3 = u3;
-
-    interleaveVcw(vf, c0, c1, c2, c3);
+    mbe_parms enh_mp;
+    mbe_initMbeParms(&m_curMBEParms, &m_prevMBEParms, &enh_mp);
 }
 
 /// <summary>
-/// 
+/// Encodes the given PCM samples using the encoder mode to MBE codewords.
 /// </summary>
-/// <param name="_vf"></param>
-/// <param name="_c0"></param>
-/// <param name="_c1"></param>
-/// <param name="_c2"></param>
-/// <param name="_c3"></param>
-void MBEEncoder::interleaveVcw(uint8_t _vf[], int _c0, int _c1, int _c2, int _c3)
+/// <param name="samples"></param>
+/// <param namse="codeword"></param>
+void MBEEncoder::encode(int16_t samples[], uint8_t codeword[])
 {
-    uint8_t vf[72];
-    uint8_t c0[24];
-    uint8_t c1[23];
-    uint8_t c2[11];
-    uint8_t c3[14];
+    int16_t frame_vector[8];	// result ignored
 
-    dump_i(c0, _c0, 24);
-    dump_i(c1, _c1, 23);
-    dump_i(c2, _c2, 11);
-    dump_i(c3, _c3, 14);
+    // first do speech analysis to generate mbe model parameters
+    m_vocoder.imbe_encode(frame_vector, samples);
+    if (m_mbeMode == ENCODE_88BIT_IMBE) {
+        //vocoder.set_gain_adjust(1.0);
 
-    vf[0] = c0[23];
-    vf[1] = c0[5];
-    vf[2] = c1[10];
-    vf[3] = c2[3];
-    vf[4] = c0[22];
-    vf[5] = c0[4];
-    vf[6] = c1[9];
-    vf[7] = c2[2];
-    vf[8] = c0[21];
-    vf[9] = c0[3];
-    vf[10] = c1[8];
-    vf[11] = c2[1];
-    vf[12] = c0[20];
-    vf[13] = c0[2];
-    vf[14] = c1[7];
-    vf[15] = c2[0];
-    vf[16] = c0[19];
-    vf[17] = c0[1];
-    vf[18] = c1[6];
-    vf[19] = c3[13];
-    vf[20] = c0[18];
-    vf[21] = c0[0];
-    vf[22] = c1[5];
-    vf[23] = c3[12];
-    vf[24] = c0[17];
-    vf[25] = c1[22];
-    vf[26] = c1[4];
-    vf[27] = c3[11];
-    vf[28] = c0[16];
-    vf[29] = c1[21];
-    vf[30] = c1[3];
-    vf[31] = c3[10];
-    vf[32] = c0[15];
-    vf[33] = c1[20];
-    vf[34] = c1[2];
-    vf[35] = c3[9];
-    vf[36] = c0[14];
-    vf[37] = c1[19];
-    vf[38] = c1[1];
-    vf[39] = c3[8];
-    vf[40] = c0[13];
-    vf[41] = c1[18];
-    vf[42] = c1[0];
-    vf[43] = c3[7];
-    vf[44] = c0[12];
-    vf[45] = c1[17];
-    vf[46] = c2[10];
-    vf[47] = c3[6];
-    vf[48] = c0[11];
-    vf[49] = c1[16];
-    vf[50] = c2[9];
-    vf[51] = c3[5];
-    vf[52] = c0[10];
-    vf[53] = c1[15];
-    vf[54] = c2[8];
-    vf[55] = c3[4];
-    vf[56] = c0[9];
-    vf[57] = c1[14];
-    vf[58] = c2[7];
-    vf[59] = c3[3];
-    vf[60] = c0[8];
-    vf[61] = c1[13];
-    vf[62] = c2[6];
-    vf[63] = c3[2];
-    vf[64] = c0[7];
-    vf[65] = c1[12];
-    vf[66] = c2[5];
-    vf[67] = c3[1];
-    vf[68] = c0[6];
-    vf[69] = c1[11];
-    vf[70] = c2[4];
-    vf[71] = c3[0];
+        uint32_t offset = 0U;
+        int16_t mask = 0x0800;
 
-    for (unsigned int i = 0; i < sizeof(vf) / 2; i++) {
-        _vf[i] = (vf[i * 2] << 1) | vf[i * 2 + 1];
+        for (uint32_t i = 0U; i < 12U; i++, mask >>= 1, offset++)
+            WRITE_BIT(codeword, offset, (frame_vector[0U] & mask) != 0);
+
+        mask = 0x0800;
+        for (uint32_t i = 0U; i < 12U; i++, mask >>= 1, offset++)
+            WRITE_BIT(codeword, offset, (frame_vector[1U] & mask) != 0);
+
+        mask = 0x0800;
+        for (uint32_t i = 0U; i < 12U; i++, mask >>= 1, offset++)
+            WRITE_BIT(codeword, offset, (frame_vector[2U] & mask) != 0);
+
+        mask = 0x0800;
+        for (uint32_t i = 0U; i < 12U; i++, mask >>= 1, offset++)
+            WRITE_BIT(codeword, offset, (frame_vector[3U] & mask) != 0);
+
+        mask = 0x0400;
+        for (uint32_t i = 0U; i < 11U; i++, mask >>= 1, offset++)
+            WRITE_BIT(codeword, offset, (frame_vector[4U] & mask) != 0);
+
+        mask = 0x0400;
+        for (uint32_t i = 0U; i < 11U; i++, mask >>= 1, offset++)
+            WRITE_BIT(codeword, offset, (frame_vector[5U] & mask) != 0);
+
+        mask = 0x0400;
+        for (uint32_t i = 0U; i < 11U; i++, mask >>= 1, offset++)
+            WRITE_BIT(codeword, offset, (frame_vector[6U] & mask) != 0);
+
+        mask = 0x0040;
+        for (uint32_t i = 0U; i < 7U; i++, mask >>= 1, offset++)
+            WRITE_BIT(codeword, offset, (frame_vector[7U] & mask) != 0);
+    }
+    else {
+        int b[9];
+
+        // halfrate audio encoding - output rate is 2450 (49 bits)
+        encodeAMBE(m_vocoder.param(), b, &m_curMBEParms, &m_prevMBEParms, m_gainAdjust);
+
+        uint8_t bits[49U];
+        ::memset(bits, 0x00U, 49U);
+
+        encode49bit(bits, b);
+
+        // build 49-bit AMBE bytes
+        uint8_t rawAmbe[9U];
+        ::memset(rawAmbe, 0x00U, 9U);
+
+        for (int i = 0; i < 9; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                rawAmbe[i] |= (bits[(i * 8) + j] << (7 - j));
+            }
+        }
+
+        // build DMR AMBE bytes
+        uint8_t dmrAMBE[9U];
+        ::memset(dmrAMBE, 0x00U, 9U);
+
+        encodeDmrAMBE(rawAmbe, dmrAMBE);
+        ::memcpy(codeword, dmrAMBE, 9U);
     }
 }

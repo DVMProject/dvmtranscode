@@ -98,10 +98,8 @@ Transcode::Transcode(network::BaseNetwork* srcNetwork, network::BaseNetwork* dst
     m_ambeBuffer = new uint8_t[dmr::DMR_AMBE_LENGTH_BYTES];
     ::memset(m_ambeBuffer, 0x00U, dmr::DMR_AMBE_LENGTH_BYTES);
 
-    m_mbeDecode = new vocoder::MBEDecoder();
-    //m_mbeDecode->setAutoGain(true);
-    m_mbeEncode = new vocoder::MBEEncoder();
-    m_mbeEncode->setDmrMode(); // configure for DMR AMBE
+    m_mbeDecode = new vocoder::MBEDecoder(vocoder::DECODE_88BIT_IMBE);
+    m_mbeEncode = new vocoder::MBEEncoder(vocoder::ENCODE_DMR_AMBE);
     m_mbeEncode->setGainAdjust(2.5); // this is excessive...
 }
 
@@ -113,6 +111,7 @@ Transcode::~Transcode()
     delete[] m_netLDU1;
     delete[] m_netLDU2;
     delete[] m_lastIMBE;
+    delete m_ambeBuffer;
     delete m_mbeDecode;
     delete m_mbeEncode;
 }
@@ -308,10 +307,7 @@ void Transcode::processNetwork()
             ::memset(data, 0x00U, dmr::DMR_FRAME_LENGTH_BYTES);
 
             // generate LC
-            dmr::lc::LC dmrLC;
-            dmrLC.setSrcId(dmrData.getSrcId());
-            dmrLC.setDstId(dmrData.getDstId());
-            dmrLC.setFLCO(dmrData.getFLCO());
+            dmr::lc::LC dmrLC = dmr::lc::LC(dmrData.getFLCO(), dmrData.getSrcId(), dmrData.getDstId());
 
             // generate the Slot Type
             dmr::SlotType slotType;
@@ -355,12 +351,9 @@ void Transcode::processNetwork()
 /// <summary>
 ///
 /// </summary>
-/// <param name="imbe"></param>
-void Transcode::decodeAndProcessIMBE(uint8_t* imbe)
+/// <param name="ldu"></param>
+void Transcode::decodeAndProcessIMBE(uint8_t* ldu)
 {
-    int pcmSampleCount = 0;
-    int16_t* pcmSamples = NULL;
-
     if (m_netState == RS_NET_IDLE) {
         m_netState = RS_NET_AUDIO;
 
@@ -369,14 +362,61 @@ void Transcode::decodeAndProcessIMBE(uint8_t* imbe)
         m_embeddedData = dmr::data::EmbeddedData();
     }
 
-    m_dmrN = m_dmrSeqNo % 6U;
+    for (uint8_t n = 0; n < 9; n++) {
+        m_dmrN = m_dmrSeqNo % 6U;
 
-    if (m_ambeCount == 3U) {
-        if (m_dmrSeqNo == 0U) {
-            // send DMR voice header
+        if (m_ambeCount == 3U) {
+            if (m_dmrSeqNo == 0U) {
+                // send DMR voice header
+                dmr::data::Data dmrData;
+                dmrData.setSrcId(m_netLC.getSrcId());
+                dmrData.setDstId(m_netLC.getDstId());
+
+                if (m_netLC.getGroup()) {
+                    dmrData.setFLCO(dmr::FLCO_GROUP);
+                }
+                else {
+                    dmrData.setFLCO(dmr::FLCO_PRIVATE);
+                }
+
+                dmrData.setDataType(dmr::DT_VOICE_LC_HEADER);
+
+                uint8_t data[dmr::DMR_FRAME_LENGTH_BYTES];
+                ::memset(data, 0x00U, dmr::DMR_FRAME_LENGTH_BYTES);
+
+                // generate LC
+                dmr::lc::LC dmrLC = dmr::lc::LC(dmrData.getFLCO(), dmrData.getSrcId(), dmrData.getDstId());
+
+                // generate the Slot Type
+                dmr::SlotType slotType;
+                slotType.setDataType(dmr::DT_VOICE_LC_HEADER);
+                slotType.encode(data);
+
+                dmr::lc::FullLC fullLC;
+                fullLC.encode(dmrLC, data, dmr::DT_VOICE_LC_HEADER);
+
+                // Convert the Data Sync to be from the BS or MS as needed
+                dmr::Sync::addDMRDataSync(data, true); // hardcoded to duplex?
+
+                if (m_debug) {
+                    Utils::dump(1U, "DMR Data Frame", data, dmr::DMR_FRAME_LENGTH_BYTES);
+                }
+
+                if (m_verbose) {
+                    LogMessage(LOG_P25, "DMR, DT_VOICE_LC_HEADER, srcId = %u, dstId = %u, FLCO = $%02X, FID = $%02X, PF = %u", dmrLC.getSrcId(), dmrLC.getDstId(), dmrLC.getFLCO(), dmrLC.getFID(), dmrLC.getPF());
+                }
+
+                dmrData.setData(data);
+
+                m_dstNetwork->writeDMR(dmrData);
+            }
+
+            // send DMR voice
             dmr::data::Data dmrData;
             dmrData.setSrcId(m_netLC.getSrcId());
             dmrData.setDstId(m_netLC.getDstId());
+            dmrData.setSeqNo(m_dmrSeqNo);
+            dmrData.setN(m_dmrN);
 
             if (m_netLC.getGroup()) {
                 dmrData.setFLCO(dmr::FLCO_GROUP);
@@ -385,129 +425,117 @@ void Transcode::decodeAndProcessIMBE(uint8_t* imbe)
                 dmrData.setFLCO(dmr::FLCO_PRIVATE);
             }
 
-            dmrData.setDataType(dmr::DT_VOICE_LC_HEADER);
-
+            // generate DMR AMBE data
             uint8_t data[dmr::DMR_FRAME_LENGTH_BYTES];
             ::memset(data, 0x00U, dmr::DMR_FRAME_LENGTH_BYTES);
 
-            // generate LC
-            dmr::lc::LC dmrLC;
-            dmrLC.setSrcId(dmrData.getSrcId());
-            dmrLC.setDstId(dmrData.getDstId());
-            dmrLC.setFLCO(dmrData.getFLCO());
+            if (m_debug) {
+                Utils::dump(1U, "DMR AMBE Buffer", m_ambeBuffer, dmr::DMR_FRAME_LENGTH_BYTES);
+            }
 
-            // generate the Slot Type
-            dmr::SlotType slotType;
-            slotType.setDataType(dmr::DT_VOICE_LC_HEADER);
-            slotType.encode(data);
-
-            dmr::lc::FullLC fullLC;
-            fullLC.encode(dmrLC, data, dmr::DT_VOICE_LC_HEADER);
-
-            // Convert the Data Sync to be from the BS or MS as needed
-            dmr::Sync::addDMRDataSync(data, true); // hardcoded to duplex?
+            ::memcpy(data, m_ambeBuffer, 13U);
+            data[13U] = m_ambeBuffer[13U] & 0xF0U;
+            data[19U] = m_ambeBuffer[13U] & 0x0FU;
+            ::memcpy(data + 20U, m_ambeBuffer + 14U, 13U);
 
             if (m_debug) {
                 Utils::dump(1U, "DMR Data Frame", data, dmr::DMR_FRAME_LENGTH_BYTES);
             }
 
-            if (m_verbose) {
-                LogMessage(LOG_P25, "DMR, DT_VOICE_LC_HEADER, srcId = %u, dstId = %u, FLCO = $%02X, FID = $%02X, PF = %u", dmrLC.getSrcId(), dmrLC.getDstId(), dmrLC.getFLCO(), dmrLC.getFID(), dmrLC.getPF());
+            if (m_dmrN == 0U) {
+                // generate LC
+                dmr::lc::LC dmrLC = dmr::lc::LC(dmrData.getFLCO(), dmrData.getSrcId(), dmrData.getDstId());
+                m_embeddedData.setLC(dmrLC);
+
+                dmrData.setDataType(dmr::DT_VOICE_SYNC);
+
+                // Convert the Voice Sync to be from the BS or MS as needed
+                dmr::Sync::addDMRAudioSync(data, true); // hardcoded to duplex?
+
+                if (m_verbose) {
+                    LogMessage(LOG_P25, "DMR, DT_VOICE_SYNC audio, sequence no = %u", m_dmrN);
+                }
+            }
+            else {
+                dmrData.setDataType(dmr::DT_VOICE);
+
+                uint8_t lcss = m_embeddedData.getData(data, m_dmrN);
+
+                // generated embedded signalling
+                dmr::data::EMB emb;
+                emb.setColorCode(0U);
+                emb.setLCSS(lcss);
+                emb.encode(data);
+
+                if (m_verbose) {
+                    LogMessage(LOG_P25, "DMR, DT_VOICE audio, sequence no = %u", m_dmrN);
+                }
             }
 
             dmrData.setData(data);
 
             m_dstNetwork->writeDMR(dmrData);
+            m_dmrSeqNo++;
+        
+            // clear AMBE buffer
+            ::memset(m_ambeBuffer, 0x00U, dmr::DMR_AMBE_LENGTH_BYTES);
+            m_ambeCount = 0U;
         }
 
-        // send DMR voice
-        dmr::data::Data dmrData;
-        dmrData.setSrcId(m_netLC.getSrcId());
-        dmrData.setDstId(m_netLC.getDstId());
-        dmrData.setSeqNo(m_dmrSeqNo);
-        dmrData.setN(m_dmrN);
+        // get P25 IMBE codeword
+        uint8_t imbe[11U];
+        ::memset(imbe, 0x00U, 11U);
 
-        if (m_netLC.getGroup()) {
-            dmrData.setFLCO(dmr::FLCO_GROUP);
+        switch (n) {
+        case 0:
+            ::memcpy(imbe, ldu + 10U, 11U);
+            break;
+        case 1:
+            ::memcpy(imbe, ldu + 26U, 11U);
+            break;
+        case 2:
+            ::memcpy(imbe, ldu + 55U, 11U);
+            break;
+        case 3:
+            ::memcpy(imbe, ldu + 80U, 11U);
+            break;
+        case 4:
+            ::memcpy(imbe, ldu + 105U, 11U);
+            break;
+        case 5:
+            ::memcpy(imbe, ldu + 130U, 11U);
+            break;
+        case 6:
+            ::memcpy(imbe, ldu + 155U, 11U);
+            break;
+        case 7:
+            ::memcpy(imbe, ldu + 180U, 11U);
+            break;
+        case 8:
+            ::memcpy(imbe, ldu + 204U, 11U);
+            break;
         }
-        else {
-            dmrData.setFLCO(dmr::FLCO_PRIVATE);
-        }
 
-        // generate DMR AMBE data
-        uint8_t data[dmr::DMR_FRAME_LENGTH_BYTES];
-        ::memset(data, 0x00U, dmr::DMR_FRAME_LENGTH_BYTES);
+        // decode IMBE into PCM
+        int16_t pcmSamples[160U];
+        ::memset(pcmSamples, 0x00U, 160U);
 
+        int32_t errs = m_mbeDecode->decode(imbe, pcmSamples);
         if (m_debug) {
-            Utils::dump(1U, "DMR AMBE Buffer", m_ambeBuffer, dmr::DMR_FRAME_LENGTH_BYTES);
+            LogDebug(LOG_P25, "decoded IMBE VC%u, errs = %u", n, errs);
         }
 
-        ::memcpy(data, m_ambeBuffer, 13U);
-        data[13U] = m_ambeBuffer[13U] & 0xF0U;
-        data[19U] = m_ambeBuffer[13U] & 0x0FU;
-        ::memcpy(data + 20U, m_ambeBuffer + 14U, 13U);
+        // encode PCM into AMBE
+        uint8_t ambe[9U];
+        ::memset(ambe, 0x00U, 9U);
 
+        m_mbeEncode->encode(pcmSamples, ambe);
         if (m_debug) {
-            Utils::dump(1U, "DMR Data Frame", data, dmr::DMR_FRAME_LENGTH_BYTES);
+            Utils::dump(1U, "DMR AMBE", ambe, 9U);
         }
 
-        if (m_dmrN == 0U) {
-            dmrData.setDataType(dmr::DT_VOICE_SYNC);
-
-            // Convert the Voice Sync to be from the BS or MS as needed
-            dmr::Sync::addDMRAudioSync(data, true); // hardcoded to duplex?
-
-            // generate LC
-            dmr::lc::LC dmrLC;
-            dmrLC.setSrcId(dmrData.getSrcId());
-            dmrLC.setDstId(dmrData.getDstId());
-            dmrLC.setFLCO(dmrData.getFLCO());
-
-            m_embeddedData.setLC(dmrLC);
-        }
-        else {
-            dmrData.setDataType(dmr::DT_VOICE);
-
-            uint8_t lcss = m_embeddedData.getData(data, m_dmrN);
-
-            // generated embedded signalling
-            dmr::data::EMB emb;
-            emb.setColorCode(0U);
-            emb.setLCSS(lcss);
-            emb.encode(data);
-        }
-
-        if (m_verbose) {
-            LogMessage(LOG_P25, "DMR, DMR_SYNC_VOICE audio, sequence no = %u", m_dmrN);
-        }
-
-        dmrData.setData(data);
-       
-        m_dstNetwork->writeDMR(dmrData);
-        m_dmrSeqNo++;
-
-        // clear AMBE buffer
-        ::memset(m_ambeBuffer, 0x00U, dmr::DMR_AMBE_LENGTH_BYTES);
-        m_ambeCount = 0U;
-    }
-
-    m_mbeDecode->processP25(imbe);
-    pcmSamples = m_mbeDecode->getAudio(pcmSampleCount);
-    m_mbeDecode->resetAudio();
-    if (pcmSamples != NULL) {
-        if (pcmSampleCount > 0) {
-            uint8_t ambe[10U];
-            ::memset(ambe, 0x00U, 10U);
-
-            m_mbeEncode->encode(pcmSamples, ambe);
-
-            if (m_debug) {
-                Utils::dump(1U, "DMR AMBE", ambe, 10U);
-            }
-
-            ::memcpy(m_ambeBuffer + (m_ambeCount * 9U), ambe, 9U);
-            m_ambeCount++;
-        }
+        ::memcpy(m_ambeBuffer + (m_ambeCount * 9U), ambe, 9U);
+        m_ambeCount++;
     }
 }
 
@@ -559,29 +587,6 @@ void Transcode::writeNet_LDU1(const lc::LC& control, const data::LowSpeedData& l
 
     insertMissingAudio(m_netLDU1);
 
-    uint8_t imbe[11U];
-    ::memset(imbe, 0x00U, 11U);
-
-    // Process the audio
-    ::memcpy(imbe, m_netLDU1 + 10U, 11U);
-    decodeAndProcessIMBE(imbe);
-    ::memcpy(imbe, m_netLDU1 + 26U, 11U);
-    decodeAndProcessIMBE(imbe);
-    ::memcpy(imbe, m_netLDU1 + 55U, 11U);
-    decodeAndProcessIMBE(imbe);
-    ::memcpy(imbe, m_netLDU1 + 80U, 11U);
-    decodeAndProcessIMBE(imbe);
-    ::memcpy(imbe, m_netLDU1 + 105U, 11U);
-    decodeAndProcessIMBE(imbe);
-    ::memcpy(imbe, m_netLDU1 + 130U, 11U);
-    decodeAndProcessIMBE(imbe);
-    ::memcpy(imbe, m_netLDU1 + 155U, 11U);
-    decodeAndProcessIMBE(imbe);
-    ::memcpy(imbe, m_netLDU1 + 180U, 11U);
-    decodeAndProcessIMBE(imbe);
-    ::memcpy(imbe, m_netLDU1 + 204U, 11U);
-    decodeAndProcessIMBE(imbe);
-
     if (m_verbose) {
         uint32_t loss = 0;
         if (m_netFrames != 0) {
@@ -597,6 +602,9 @@ void Transcode::writeNet_LDU1(const lc::LC& control, const data::LowSpeedData& l
         LogMessage(LOG_NET, P25_LDU1_STR " audio, srcId = %u, dstId = %u, group = %u, emerg = %u, encrypt = %u, prio = %u, %u%% packet loss",
             m_netLC.getSrcId(), m_netLC.getDstId(), m_netLC.getGroup(), m_netLC.getEmergency(), m_netLC.getEncrypted(), m_netLC.getPriority(), loss);
     }
+
+    // Process the audio
+    decodeAndProcessIMBE(m_netLDU1);
 
     ::memset(m_netLDU1, 0x00U, 9U * 25U);
 
@@ -643,29 +651,6 @@ void Transcode::writeNet_LDU2(const lc::LC& control, const data::LowSpeedData& l
 
     insertMissingAudio(m_netLDU2);
 
-    uint8_t imbe[11U];
-    ::memset(imbe, 0x00U, 11U);
-
-    // Process the audio
-    ::memcpy(imbe, m_netLDU2 + 10U, 11U);
-    decodeAndProcessIMBE(imbe);
-    ::memcpy(imbe, m_netLDU2 + 26U, 11U);
-    decodeAndProcessIMBE(imbe);
-    ::memcpy(imbe, m_netLDU2 + 55U, 11U);
-    decodeAndProcessIMBE(imbe);
-    ::memcpy(imbe, m_netLDU2 + 80U, 11U);
-    decodeAndProcessIMBE(imbe);
-    ::memcpy(imbe, m_netLDU2 + 105U, 11U);
-    decodeAndProcessIMBE(imbe);
-    ::memcpy(imbe, m_netLDU2 + 130U, 11U);
-    decodeAndProcessIMBE(imbe);
-    ::memcpy(imbe, m_netLDU2 + 155U, 11U);
-    decodeAndProcessIMBE(imbe);
-    ::memcpy(imbe, m_netLDU2 + 180U, 11U);
-    decodeAndProcessIMBE(imbe);
-    ::memcpy(imbe, m_netLDU2 + 204U, 11U);
-    decodeAndProcessIMBE(imbe);
-
     if (m_verbose) {
         uint32_t loss = 0;
         if (m_netFrames != 0) {
@@ -680,6 +665,9 @@ void Transcode::writeNet_LDU2(const lc::LC& control, const data::LowSpeedData& l
 
         LogMessage(LOG_NET, P25_LDU2_STR " audio, algo = $%02X, kid = $%04X, %u%% packet loss", algId, kId, loss);
     }
+
+    // Process the audio
+    decodeAndProcessIMBE(m_netLDU2);
 
     ::memset(m_netLDU2, 0x00U, 9U * 25U);
 

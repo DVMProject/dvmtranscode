@@ -34,45 +34,37 @@
 namespace vocoder
 {
     // ---------------------------------------------------------------------------
+    //  Constants
+    // ---------------------------------------------------------------------------
+
+    enum MBE_ENCODER_MODE {
+        ENCODE_DMR_AMBE,
+        ENCODE_88BIT_IMBE,  // e.g. IMBE used by P25
+    };
+
+    // ---------------------------------------------------------------------------
     //  Class Declaration
     //      Implements MBE audio encoding.
     // ---------------------------------------------------------------------------
 
     class MBEEncoder {
     public:
-        /// <summary></summary>
-        MBEEncoder();
+        /// <summary>Initializes a new instance of the MBEEncoder class.</summary>
+        MBEEncoder(MBE_ENCODER_MODE mode);
 
-        /// <summary></summary>
-        void set49bitMode();
-        /// <summary></summary>
-        void setDmrMode();
-        /// <summary></summary>
-        void set88bitMode();
-
-        /// <summary></summary>
+        /// <summary>Encodes the given PCM samples using the encoder mode to MBE codewords.</summary>
         void encode(int16_t samples[], uint8_t codeword[]);
-
-        /// <summary></summary>
-        void setGainAdjust(const float gain) { m_gainAdjust = gain; }
 
     private:
         imbe_vocoder m_vocoder;
         mbe_parms m_curMBEParms;
         mbe_parms m_prevMBEParms;
 
-        bool m_49bitMode;
-        bool m_dmrMode;
-        bool m_88bitMode;
+        MBE_ENCODER_MODE m_mbeMode;
 
-        float m_gainAdjust;
-
+    public:
         /// <summary></summary>
-        void encodeDmr(const unsigned char* in, unsigned char* out);
-        /// <summary></summary>
-        void encodeVcw(uint8_t vf[], const int* b);
-        /// <summary></summary>
-        void interleaveVcw(uint8_t _vf[], int _c0, int _c1, int _c2, int _c3);
+        __PROPERTY(float, gainAdjust, GainAdjust);
     };
 } // namespace vocoder
 
