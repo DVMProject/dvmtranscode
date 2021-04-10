@@ -405,7 +405,7 @@ void Slot::decodeAndProcessAMBE(uint8_t* ambe)
         ::memset(m_netLDU2, 0x00U, 9U * 25U);
     }
 
-    for (uint8_t n = 0; n < 3; n++) {
+    for (uint8_t n = 0; n < AMBE_PER_SLOT; n++) {
         // decode AMBE into PCM
         int16_t pcmSamples[160U];
         ::memset(pcmSamples, 0x00U, 160U);

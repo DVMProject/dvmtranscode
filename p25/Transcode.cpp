@@ -410,7 +410,7 @@ void Transcode::decodeAndProcessIMBE(uint8_t* ldu)
     for (uint8_t n = 0; n < 9; n++) {
         m_dmrN = m_dmrSeqNo % 6U;
 
-        if (m_ambeCount == 3U) {
+        if (m_ambeCount == dmr::AMBE_PER_SLOT) {
             if (m_dmrSeqNo == 0U) {
                 // send DMR voice header
                 dmr::data::Data dmrData;
