@@ -178,7 +178,7 @@ void Transcode::processNetwork()
     m_networkWatchdog.start();
 
     if (m_debug) {
-        Utils::dump(2U, "!!! *RX P25 Network Frame - Data Bytes", data, length);
+        Utils::dump(2U, "!!! *P25 Network Frame", data, length);
     }
 
     uint32_t count = 0U;
@@ -382,7 +382,7 @@ void Transcode::writeNet_DMR_Terminator()
     dmr::Sync::addDMRDataSync(data, true); // hardcoded to duplex?
 
     if (m_verbose) {
-        LogMessage(LOG_P25, "DMR, end of voice transmission");
+        LogMessage(LOG_P25, DMR_DT_TERMINATOR_WITH_LC ", dstId = %u", m_netLC.getDstId());
     }
 
     dmrData.setData(data);
@@ -449,7 +449,7 @@ void Transcode::decodeAndProcessIMBE(uint8_t* ldu)
                 }
 
                 if (m_verbose) {
-                    LogMessage(LOG_P25, "DMR, DT_VOICE_LC_HEADER, srcId = %u, dstId = %u, FLCO = $%02X, FID = $%02X, PF = %u", dmrLC.getSrcId(), dmrLC.getDstId(), dmrLC.getFLCO(), dmrLC.getFID(), dmrLC.getPF());
+                    LogMessage(LOG_P25, DMR_DT_VOICE_LC_HEADER ", srcId = %u, dstId = %u, FLCO = $%02X, FID = $%02X, PF = %u", dmrLC.getSrcId(), dmrLC.getDstId(), dmrLC.getFLCO(), dmrLC.getFID(), dmrLC.getPF());
                 }
 
                 dmrData.setData(data);
@@ -495,7 +495,7 @@ void Transcode::decodeAndProcessIMBE(uint8_t* ldu)
                 dmr::Sync::addDMRAudioSync(data, true); // hardcoded to duplex?
 
                 if (m_verbose) {
-                    LogMessage(LOG_P25, "DMR, DT_VOICE_SYNC audio, sequence no = %u", m_dmrN);
+                    LogMessage(LOG_P25, DMR_DT_VOICE_SYNC ", audio, srcId = %u, dstId = %u, seqNo = 0", dmrData.getSrcId(), dmrData.getDstId());
                 }
             }
             else {
@@ -510,7 +510,7 @@ void Transcode::decodeAndProcessIMBE(uint8_t* ldu)
                 emb.encode(data);
 
                 if (m_verbose) {
-                    LogMessage(LOG_P25, "DMR, DT_VOICE audio, sequence no = %u", m_dmrN);
+                    LogMessage(LOG_P25, DMR_DT_VOICE ", audio, srcId = %u, dstId = %u, seqNo = %u", dmrData.getSrcId(), dmrData.getDstId(), m_dmrN);
                 }
             }
 

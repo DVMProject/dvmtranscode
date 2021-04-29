@@ -160,8 +160,8 @@ void Slot::processNetwork(const data::Data& dmrData)
             if (fid == FID_ETSI || fid == FID_DMRA) {
                 m_netErrs += m_fec.regenerateDMR(data);
                 if (m_verbose) {
-                    LogMessage(LOG_NET, "DMR Slot %u, DT_VOICE_SYNC audio, sequence no = %u, errs = %u/141 (%.1f%%)",
-                        m_slotNo, m_netN, m_netErrs, float(m_netErrs) / 1.41F);
+                    LogMessage(LOG_NET, DMR_DT_VOICE_SYNC ", audio, slot = %u, srcId = %u, dstId = %u, seqNo = %u, errs = %u/141 (%.1f%%)", m_slotNo, m_netLC->getSrcId(), m_netLC->getDstId(),
+                        m_netN, m_netErrs, float(m_netErrs) / 1.41F);
                 }
             }
             m_netBits += 141U;
@@ -199,8 +199,8 @@ void Slot::processNetwork(const data::Data& dmrData)
             if (fid == FID_ETSI || fid == FID_DMRA) {
                 m_netErrs += m_fec.regenerateDMR(data);
                 if (m_verbose) {
-                    LogMessage(LOG_NET, "DMR Slot %u, DT_VOICE audio, sequence no = %u, errs = %u/141 (%.1f%%)",
-                        m_slotNo, m_netN, m_netErrs, float(m_netErrs) / 1.41F);
+                    LogMessage(LOG_NET, DMR_DT_VOICE ", audio, slot = %u, srcId = %u, dstId = %u, seqNo = %u, errs = %u/141 (%.1f%%)", m_slotNo, m_netLC->getSrcId(), m_netLC->getDstId(),
+                        m_netN, m_netErrs, float(m_netErrs) / 1.41F);
                 }
             }
             m_netBits += 141U;
@@ -235,6 +235,10 @@ void Slot::processNetwork(const data::Data& dmrData)
 
     case DT_TERMINATOR_WITH_LC:
     {
+        if (m_verbose) {
+            LogMessage(LOG_NET, DMR_DT_TERMINATOR_WITH_LC ", slot = %u, dstId = %u", m_slotNo, m_netLC->getDstId());
+        }
+
         LogMessage(LOG_NET, "DMR Slot %u network end of voice transmission, %.1f seconds, %u%% packet loss, BER: %.1f%%",
             m_slotNo, float(m_netFrames) / 16.667F, (m_netLost * 100U) / m_netFrames, float(m_netErrs * 100U) / float(m_netBits));
 
