@@ -55,15 +55,11 @@ namespace dmr
             /// <summary>Finalizes a instance of the LC class.</summary>
             ~LC();
 
-            /// <summary></summary>
+            /// <summary>Gets LC data as bytes.</summary>
             void getData(uint8_t* bytes) const;
-            /// <summary></summary>
+            /// <summary>Gets LC data as bits.</summary>
             void getData(bool* bits) const;
 
-            /// <summary></summary>
-            bool getOVCM() const;
-            /// <summary></summary>
-            void setOVCM(bool ovcm);
         public:
             /// <summary>Flag indicating whether link protection is enabled.</summary>
             __PROPERTY(bool, PF, PF);
@@ -74,15 +70,25 @@ namespace dmr
             /// <summary>CSBK feature ID.</summayr>
             __PROPERTY(uint8_t, FID, FID);
 
-            /// <summary>Sets the source ID.</summary>
+            /// <summary>Source ID.</summary>
             __PROPERTY(uint32_t, srcId, SrcId);
-            /// <summary>Sets the destination ID.</summary>
+            /// <summary>Destination ID.</summary>
             __PROPERTY(uint32_t, dstId, DstId);
+
+            /** Service Options */
+            /// <summary>Flag indicating the emergency bits are set.</summary>
+            __PROPERTY(bool, emergency, Emergency);
+            /// <summary>Flag indicating that encryption is enabled.</summary>
+            __PROPERTY(bool, encrypted, Encrypted);
+            /// <summary>Priority level for the traffic.</summary>
+            __PROPERTY(uint8_t, priority, Priority);
+            /// <summary>Flag indicating broadcast operation.</summary>
+            __PROPERTY(bool, broadcast, Broadcast);
+            /// <summary>Flag indicating OVCM operation.</summary>
+            __PROPERTY(bool, ovcm, OVCM);
 
         private:
             bool m_R;
-
-            uint8_t m_options;
         };
     } // namespace lc
 } // namespace dmr
