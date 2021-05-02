@@ -41,6 +41,7 @@
 #include "edac/CRC.h"
 #include "HostMain.h"
 #include "Log.h"
+#include "Thread.h"
 #include "Utils.h"
 
 using namespace p25;
@@ -49,6 +50,12 @@ using namespace p25;
 #include <cstdio>
 #include <cstring>
 #include <ctime>
+
+// ---------------------------------------------------------------------------
+//  Constants
+// ---------------------------------------------------------------------------
+
+const uint32_t TIME_BETWEEN_FRAMES = 60U;
 
 // ---------------------------------------------------------------------------
 //  Public Class Members
@@ -359,10 +366,13 @@ void Transcode::writeNet_DMR_Terminator()
 
             n++;
             m_dmrSeqNo++;
+
+            Thread::sleep(TIME_BETWEEN_FRAMES);
         }
     }
 
     dmrData.setDataType(dmr::DT_TERMINATOR_WITH_LC);
+    dmrData.setSeqNo(m_dmrSeqNo);
 
     uint8_t data[dmr::DMR_FRAME_LENGTH_BYTES];
     ::memset(data, 0x00U, dmr::DMR_FRAME_LENGTH_BYTES);
@@ -416,6 +426,7 @@ void Transcode::decodeAndProcessIMBE(uint8_t* ldu)
                 dmr::data::Data dmrData;
                 dmrData.setSrcId(m_netLC.getSrcId());
                 dmrData.setDstId(m_netLC.getDstId());
+                dmrData.setSeqNo(m_dmrSeqNo);
 
                 if (m_netLC.getGroup()) {
                     dmrData.setFLCO(dmr::FLCO_GROUP);
@@ -455,6 +466,10 @@ void Transcode::decodeAndProcessIMBE(uint8_t* ldu)
                 dmrData.setData(data);
 
                 m_dstNetwork->writeDMR(dmrData);
+
+                m_dmrSeqNo++;
+
+                Thread::sleep(TIME_BETWEEN_FRAMES);
             }
 
             // send DMR voice
@@ -518,7 +533,9 @@ void Transcode::decodeAndProcessIMBE(uint8_t* ldu)
 
             m_dstNetwork->writeDMR(dmrData);
             m_dmrSeqNo++;
-        
+
+            Thread::sleep(TIME_BETWEEN_FRAMES);
+
             // clear AMBE buffer
             ::memset(m_ambeBuffer, 0x00U, dmr::DMR_AMBE_LENGTH_BYTES);
             m_ambeCount = 0U;

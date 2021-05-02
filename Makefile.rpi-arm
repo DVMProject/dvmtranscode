@@ -22,6 +22,7 @@ OBJECTS = \
 		dmr/data/EmbeddedData.o \
 		dmr/lc/FullLC.o \
 		dmr/lc/LC.o \
+		dmr/lc/PrivacyLC.o \
 		dmr/Transcode.o \
 		dmr/Slot.o \
 		dmr/SlotType.o \

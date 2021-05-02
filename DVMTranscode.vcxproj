@@ -161,6 +161,7 @@
     <ClInclude Include="dmr\DMRDefines.h" />
     <ClInclude Include="dmr\lc\FullLC.h" />
     <ClInclude Include="dmr\lc\LC.h" />
+    <ClInclude Include="dmr\lc\PrivacyLC.h" />
     <ClInclude Include="dmr\Slot.h" />
     <ClInclude Include="dmr\SlotType.h" />
     <ClInclude Include="dmr\Sync.h" />
@@ -228,6 +229,7 @@
     <ClCompile Include="dmr\data\EmbeddedData.cpp" />
     <ClCompile Include="dmr\lc\FullLC.cpp" />
     <ClCompile Include="dmr\lc\LC.cpp" />
+    <ClCompile Include="dmr\lc\PrivacyLC.cpp" />
     <ClCompile Include="dmr\Slot.cpp" />
     <ClCompile Include="dmr\SlotType.cpp" />
     <ClCompile Include="dmr\Sync.cpp" />

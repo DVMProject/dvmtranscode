@@ -281,6 +281,9 @@
     <ClInclude Include="dmr\Sync.h">
       <Filter>Header Files\dmr</Filter>
     </ClInclude>
+    <ClInclude Include="dmr\lc\PrivacyLC.h">
+      <Filter>Header Files\dmr\lc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log.cpp">
@@ -480,6 +483,9 @@
     </ClCompile>
     <ClCompile Include="dmr\Sync.cpp">
       <Filter>Source Files\dmr</Filter>
+    </ClCompile>
+    <ClCompile Include="dmr\lc\PrivacyLC.cpp">
+      <Filter>Source Files\dmr\lc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
