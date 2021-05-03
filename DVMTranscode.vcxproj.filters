@@ -266,9 +266,6 @@
     <ClInclude Include="vocoder\mbe.h">
       <Filter>Header Files\vocoder</Filter>
     </ClInclude>
-    <ClInclude Include="dmr\data\DataHeader.h">
-      <Filter>Header Files\dmr\data</Filter>
-    </ClInclude>
     <ClInclude Include="dmr\data\EMB.h">
       <Filter>Header Files\dmr\data</Filter>
     </ClInclude>
@@ -468,9 +465,6 @@
     </ClCompile>
     <ClCompile Include="vocoder\ambe3600x2250.c">
       <Filter>Source Files\vocoder</Filter>
-    </ClCompile>
-    <ClCompile Include="dmr\data\DataHeader.cpp">
-      <Filter>Source Files\dmr\data</Filter>
     </ClCompile>
     <ClCompile Include="dmr\data\EMB.cpp">
       <Filter>Source Files\dmr\data</Filter>

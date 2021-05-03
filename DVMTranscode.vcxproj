@@ -155,7 +155,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="dmr\data\Data.h" />
-    <ClInclude Include="dmr\data\DataHeader.h" />
     <ClInclude Include="dmr\data\EMB.h" />
     <ClInclude Include="dmr\data\EmbeddedData.h" />
     <ClInclude Include="dmr\DMRDefines.h" />
@@ -224,7 +223,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dmr\data\Data.cpp" />
-    <ClCompile Include="dmr\data\DataHeader.cpp" />
     <ClCompile Include="dmr\data\EMB.cpp" />
     <ClCompile Include="dmr\data\EmbeddedData.cpp" />
     <ClCompile Include="dmr\lc\FullLC.cpp" />

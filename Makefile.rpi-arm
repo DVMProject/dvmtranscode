@@ -17,7 +17,6 @@ OBJECTS = \
 		edac/RS634717.o \
 		edac/SHA256.o \
 		dmr/data/Data.o \
-		dmr/data/DataHeader.o \
 		dmr/data/EMB.o \
 		dmr/data/EmbeddedData.o \
 		dmr/lc/FullLC.o \
