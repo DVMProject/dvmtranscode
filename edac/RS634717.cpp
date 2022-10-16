@@ -120,6 +120,7 @@ const uint32_t rsGFlog[64] = {
 // ---------------------------------------------------------------------------
 //  Public Class Members
 // ---------------------------------------------------------------------------
+
 /// <summary>
 /// Initializes a new instance of the RS634717 class.
 /// </summary>
@@ -152,7 +153,7 @@ bool RS634717::decode241213(uint8_t* data)
 /// <param name="data">Raw data to encode with Reed-Solomon FEC.</param>
 void RS634717::encode241213(uint8_t* data)
 {
-    assert(data != NULL);
+    assert(data != nullptr);
 
     uint8_t codeword[24U];
 
@@ -187,7 +188,7 @@ bool RS634717::decode24169(uint8_t* data)
 /// <param name="data">Raw data to encode with Reed-Solomon FEC.</param>
 void RS634717::encode24169(uint8_t* data)
 {
-    assert(data != NULL);
+    assert(data != nullptr);
 
     uint8_t codeword[24U];
 
@@ -222,7 +223,7 @@ bool RS634717::decode362017(uint8_t* data)
 /// <param name="data">Raw data to encode with Reed-Solomon FEC.</param>
 void RS634717::encode362017(uint8_t* data)
 {
-    assert(data != NULL);
+    assert(data != nullptr);
 
     uint8_t codeword[36U];
 
@@ -244,6 +245,7 @@ void RS634717::encode362017(uint8_t* data)
 // ---------------------------------------------------------------------------
 //  Private Static Class Members
 // ---------------------------------------------------------------------------
+
 /// <summary>
 ///
 /// </summary>
@@ -284,6 +286,7 @@ void RS634717::hex2Bin(uint8_t input, uint8_t* output, uint32_t offset)
 // ---------------------------------------------------------------------------
 //  Private Class Members
 // ---------------------------------------------------------------------------
+
 /// <summary>
 ///
 /// </summary>
@@ -320,7 +323,7 @@ uint8_t RS634717::gf6Mult(uint8_t a, uint8_t b) const
 /// <returns></returns>
 bool RS634717::decode(uint8_t* data, const uint32_t bitLength, const int firstData, const int roots)
 {
-    assert(data != NULL);
+    assert(data != nullptr);
 
     uint8_t HB[63U];
     ::memset(HB, 0x00U, 63U);

@@ -43,13 +43,13 @@ using namespace dmr;
 //  Static Class Members
 // ---------------------------------------------------------------------------
 
-vocoder::MBEDecoder* Slot::m_mbeDecode = NULL;
-vocoder::MBEEncoder* Slot::m_mbeEncode = NULL;
+vocoder::MBEDecoder* Slot::m_mbeDecode = nullptr;
+vocoder::MBEEncoder* Slot::m_mbeEncode = nullptr;
 
 uint32_t Slot::m_jitterTime = 360U;
 uint32_t Slot::m_jitterSlots = 6U;
 
-uint8_t* Slot::m_idle = NULL;
+uint8_t* Slot::m_idle = nullptr;
 
 uint8_t Slot::m_flco1;
 uint8_t Slot::m_id1 = 0U;
@@ -78,7 +78,7 @@ Slot::Slot(uint32_t slotNo, network::BaseNetwork* srcNetwork, network::BaseNetwo
     m_packetTimer(1000U, 0U, 50U),
     m_interval(),
     m_elapsed(),
-    m_netLC(NULL),
+    m_netLC(nullptr),
     m_netN(0U),
     m_netFrames(0U),
     m_netLost(0U),
@@ -89,16 +89,16 @@ Slot::Slot(uint32_t slotNo, network::BaseNetwork* srcNetwork, network::BaseNetwo
     m_p25LC(),
     m_p25LSD(),
     m_p25N(0U),
-    m_netLDU1(NULL),
-    m_netLDU2(NULL),
+    m_netLDU1(nullptr),
+    m_netLDU2(nullptr),
     m_fec(),
     m_srcNetwork(srcNetwork),
     m_dstNetwork(dstNetwork),
     m_verbose(verbose),
     m_debug(debug)
 {
-    assert(srcNetwork != NULL);
-    assert(dstNetwork != NULL);
+    assert(srcNetwork != nullptr);
+    assert(dstNetwork != nullptr);
 
     m_interval.start();
 

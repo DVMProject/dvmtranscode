@@ -12,7 +12,7 @@
 //
 /*
 *   Copyright (C) 2015,2016,2017 by Jonathan Naylor G4KLX
-*   Copyright (C) 2017-2020 by Bryan Biedenkapp N2PLL
+*   Copyright (C) 2017-2022 by Bryan Biedenkapp N2PLL
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include "Defines.h"
 #include "edac/SHA256.h"
 #include "network/Network.h"
+#include "network/json/json.h"
 #include "Log.h"
 #include "StopWatch.h"
 #include "Utils.h"
@@ -398,49 +399,56 @@ bool Network::writeAuthorisation()
 /// <returns></returns>
 bool Network::writeConfig()
 {
-    const char* software = "TCD_DMR_P25";
-    char buffer[168U];
+    const char* software = __NET_NAME__;
+
+    json::object config = json::object();
+
+    // identity and frequency
+    config["identity"].set<std::string>(m_identity);                                // Identity
+    config["rxFrequency"].set<uint32_t>(m_rxFrequency);                             // Rx Frequency
+    config["txFrequency"].set<uint32_t>(m_txFrequency);                             // Tx Frequency
+
+    // system info
+    json::object sysInfo = json::object();
+    sysInfo["latitude"].set<float>(m_latitude);                                     // Latitude
+    sysInfo["longitude"].set<float>(m_longitude);                                   // Longitude
+
+    sysInfo["height"].set<int>(m_height);                                           // Height
+    sysInfo["location"].set<std::string>(m_location);                               // Location
+    config["info"].set<json::object>(sysInfo);
+
+    // channel data
+    json::object channel = json::object();
+    channel["txPower"].set<uint32_t>(m_power);                                      // Tx Power
+    channel["txOffsetMhz"].set<float>(m_txOffsetMhz);                               // Tx Offset (Mhz)
+    channel["chBandwidthKhz"].set<float>(m_chBandwidthKhz);                         // Ch. Bandwidth (khz)
+    channel["channelId"].set<uint8_t>(m_channelId);                                 // Channel ID
+    channel["channelNo"].set<uint32_t>(m_channelNo);                                // Channel No
+    config["channel"].set<json::object>(channel);
+
+    // RCON
+    json::object rcon = json::object();
+    rcon["password"].set<std::string>("");                                          // RCON Password
+    uint16_t port = 0U;
+    rcon["port"].set<uint16_t>(port);                                               // RCON Port
+    config["rcon"].set<json::object>(rcon);
+
+    config["software"].set<std::string>(std::string(software));                     // Software ID
+
+    json::value v = json::value(config);
+    std::string json = v.serialize();
+
+    char buffer[json.length() + 8U];
 
     ::memcpy(buffer + 0U, TAG_REPEATER_CONFIG, 4U);
     __SET_UINT32(m_id, buffer, 4U);
+    ::sprintf(buffer + 8U, "%s", json.c_str());
 
-    char latitude[11U];
-    ::sprintf(latitude, "%08f", m_latitude);
+    if (m_debug) {
+        Utils::dump(1U, "Network Transmitted, Configuration", (uint8_t*)buffer, json.length() + 8U);
+    }
 
-    char longitude[11U];
-    ::sprintf(longitude, "%09f", m_longitude);
-
-    char chBandwidthKhz[6U];
-    ::sprintf(chBandwidthKhz, "%02.02f", m_chBandwidthKhz);
-
-    char txOffsetMhz[6U];
-    ::sprintf(txOffsetMhz, "%02.02f", m_txOffsetMhz);
-
-    char channelId[4U];
-    ::sprintf(channelId, "%d", m_channelId);
-
-    char channelNo[5U];
-    ::sprintf(channelNo, "%d", m_channelNo);
-
-    int power = m_power;
-    if (m_power > 99U)
-        power = 99U;
-
-    int height = m_height;
-    if (m_height > 999)
-        height = 999;
-
-    //                      IdntRX  TX  RsrvLatLngHghtLoctnRsrvTxOfChBnChIdChNoPowrSftwrRsrvRcnPsRcPt
-    ::sprintf(buffer + 8U, "%-8s%09u%09u%10s%8s%9s%03d%-20s%10s%-5s%-5s%-3s%-4s%02d%-16s%10s%-20s%05d", 
-            m_identity.c_str(), m_rxFrequency, m_txFrequency,
-        "", latitude, longitude, height, m_location.c_str(),
-        "", txOffsetMhz, chBandwidthKhz, channelId, channelNo, power, software,
-        "", "", 0);
-
-    if (m_debug)
-        Utils::dump(1U, "Network Transmitted, Configuration", (uint8_t*)buffer, 168U);
-
-    return write((uint8_t*)buffer, 168U);
+    return write((uint8_t*)buffer, json.length() + 8U);
 }
 
 /// <summary>

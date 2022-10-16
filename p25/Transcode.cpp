@@ -78,21 +78,21 @@ Transcode::Transcode(network::BaseNetwork* srcNetwork, network::BaseNetwork* dst
     m_netFrames(0U),
     m_netLost(0U),
     m_netLC(),
-    m_netLDU1(NULL),
-    m_netLDU2(NULL),
-    m_lastIMBE(NULL),
-    m_ambeBuffer(NULL),
+    m_netLDU1(nullptr),
+    m_netLDU2(nullptr),
+    m_lastIMBE(nullptr),
+    m_ambeBuffer(nullptr),
     m_ambeCount(0U),
     m_dmrSeqNo(0U),
     m_dmrN(0U),
     m_embeddedData(),
-    m_mbeDecode(NULL),
-    m_mbeEncode(NULL),
+    m_mbeDecode(nullptr),
+    m_mbeEncode(nullptr),
     m_verbose(verbose),
     m_debug(debug)
 {
-    assert(srcNetwork != NULL);
-    assert(dstNetwork != NULL);
+    assert(srcNetwork != nullptr);
+    assert(dstNetwork != nullptr);
 
     m_netLDU1 = new uint8_t[9U * 25U];
     m_netLDU2 = new uint8_t[9U * 25U];
@@ -130,7 +130,7 @@ Transcode::~Transcode()
 /// <param name="ms"></param>
 void Transcode::clock(uint32_t ms)
 {
-    if (m_srcNetwork != NULL) {
+    if (m_srcNetwork != nullptr) {
         processNetwork();
     }
 
@@ -177,7 +177,7 @@ void Transcode::processNetwork()
         return;
     if (length == 0U)
         return;
-    if (data == NULL) {
+    if (data == nullptr) {
         m_srcNetwork->resetP25();
         return;
     }

@@ -12,7 +12,7 @@
 //
 /*
 *   Copyright (C) 2015,2016 by Jonathan Naylor G4KLX
-*   Copyright (C) 2018 by Bryan Biedenkapp N2PLL
+*   Copyright (C) 2018,2022 by Bryan Biedenkapp N2PLL
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 */
 #include "Defines.h"
 #include "edac/CRC.h"
+#include "Log.h"
 #include "Utils.h"
 
 using namespace edac;
@@ -81,42 +82,41 @@ const uint16_t CRC9_TABLE[] = {
     0x1BDU, 0x1DEU, 0x0C3U, 0x161U, 0x1B0U, 0x0F4U, 0x056U, 0x007U, 0x103U, 0x181,
     0x1C0U, 0x0CCU, 0x04AU, 0x009U, 0x104U, 0x0AEU, 0x07BU, 0x13DU, 0x19EU, 0x0E3,
     0x171U, 0x1B8U, 0x0F0U, 0x054U, 0x006U, 0x02FU, 0x117U, 0x18BU, 0x1C5U, 0x1E2,
-    0x0DDU, 0x16EU, 0x09BU, 0x14DU, 0x1A6U
-};
+    0x0DDU, 0x16EU, 0x09BU, 0x14DU, 0x1A6U };
 
 const uint16_t CCITT16_TABLE1[] = {
-    0x0000U, 0x1189U, 0x2312U, 0x329bU, 0x4624U, 0x57adU, 0x6536U, 0x74bfU,
-    0x8c48U, 0x9dc1U, 0xaf5aU, 0xbed3U, 0xca6cU, 0xdbe5U, 0xe97eU, 0xf8f7U,
-    0x1081U, 0x0108U, 0x3393U, 0x221aU, 0x56a5U, 0x472cU, 0x75b7U, 0x643eU,
-    0x9cc9U, 0x8d40U, 0xbfdbU, 0xae52U, 0xdaedU, 0xcb64U, 0xf9ffU, 0xe876U,
-    0x2102U, 0x308bU, 0x0210U, 0x1399U, 0x6726U, 0x76afU, 0x4434U, 0x55bdU,
-    0xad4aU, 0xbcc3U, 0x8e58U, 0x9fd1U, 0xeb6eU, 0xfae7U, 0xc87cU, 0xd9f5U,
-    0x3183U, 0x200aU, 0x1291U, 0x0318U, 0x77a7U, 0x662eU, 0x54b5U, 0x453cU,
-    0xbdcbU, 0xac42U, 0x9ed9U, 0x8f50U, 0xfbefU, 0xea66U, 0xd8fdU, 0xc974U,
-    0x4204U, 0x538dU, 0x6116U, 0x709fU, 0x0420U, 0x15a9U, 0x2732U, 0x36bbU,
-    0xce4cU, 0xdfc5U, 0xed5eU, 0xfcd7U, 0x8868U, 0x99e1U, 0xab7aU, 0xbaf3U,
-    0x5285U, 0x430cU, 0x7197U, 0x601eU, 0x14a1U, 0x0528U, 0x37b3U, 0x263aU,
-    0xdecdU, 0xcf44U, 0xfddfU, 0xec56U, 0x98e9U, 0x8960U, 0xbbfbU, 0xaa72U,
-    0x6306U, 0x728fU, 0x4014U, 0x519dU, 0x2522U, 0x34abU, 0x0630U, 0x17b9U,
-    0xef4eU, 0xfec7U, 0xcc5cU, 0xddd5U, 0xa96aU, 0xb8e3U, 0x8a78U, 0x9bf1U,
-    0x7387U, 0x620eU, 0x5095U, 0x411cU, 0x35a3U, 0x242aU, 0x16b1U, 0x0738U,
-    0xffcfU, 0xee46U, 0xdcddU, 0xcd54U, 0xb9ebU, 0xa862U, 0x9af9U, 0x8b70U,
-    0x8408U, 0x9581U, 0xa71aU, 0xb693U, 0xc22cU, 0xd3a5U, 0xe13eU, 0xf0b7U,
-    0x0840U, 0x19c9U, 0x2b52U, 0x3adbU, 0x4e64U, 0x5fedU, 0x6d76U, 0x7cffU,
-    0x9489U, 0x8500U, 0xb79bU, 0xa612U, 0xd2adU, 0xc324U, 0xf1bfU, 0xe036U,
-    0x18c1U, 0x0948U, 0x3bd3U, 0x2a5aU, 0x5ee5U, 0x4f6cU, 0x7df7U, 0x6c7eU,
-    0xa50aU, 0xb483U, 0x8618U, 0x9791U, 0xe32eU, 0xf2a7U, 0xc03cU, 0xd1b5U,
-    0x2942U, 0x38cbU, 0x0a50U, 0x1bd9U, 0x6f66U, 0x7eefU, 0x4c74U, 0x5dfdU,
-    0xb58bU, 0xa402U, 0x9699U, 0x8710U, 0xf3afU, 0xe226U, 0xd0bdU, 0xc134U,
-    0x39c3U, 0x284aU, 0x1ad1U, 0x0b58U, 0x7fe7U, 0x6e6eU, 0x5cf5U, 0x4d7cU,
-    0xc60cU, 0xd785U, 0xe51eU, 0xf497U, 0x8028U, 0x91a1U, 0xa33aU, 0xb2b3U,
-    0x4a44U, 0x5bcdU, 0x6956U, 0x78dfU, 0x0c60U, 0x1de9U, 0x2f72U, 0x3efbU,
-    0xd68dU, 0xc704U, 0xf59fU, 0xe416U, 0x90a9U, 0x8120U, 0xb3bbU, 0xa232U,
-    0x5ac5U, 0x4b4cU, 0x79d7U, 0x685eU, 0x1ce1U, 0x0d68U, 0x3ff3U, 0x2e7aU,
-    0xe70eU, 0xf687U, 0xc41cU, 0xd595U, 0xa12aU, 0xb0a3U, 0x8238U, 0x93b1U,
-    0x6b46U, 0x7acfU, 0x4854U, 0x59ddU, 0x2d62U, 0x3cebU, 0x0e70U, 0x1ff9U,
-    0xf78fU, 0xe606U, 0xd49dU, 0xc514U, 0xb1abU, 0xa022U, 0x92b9U, 0x8330U,
-    0x7bc7U, 0x6a4eU, 0x58d5U, 0x495cU, 0x3de3U, 0x2c6aU, 0x1ef1U, 0x0f78U };
+    0x0000U, 0x1189U, 0x2312U, 0x329BU, 0x4624U, 0x57ADU, 0x6536U, 0x74BFU,
+    0x8C48U, 0x9DC1U, 0xAF5AU, 0xBED3U, 0xCA6CU, 0xDBE5U, 0xE97EU, 0xF8F7U,
+    0x1081U, 0x0108U, 0x3393U, 0x221AU, 0x56A5U, 0x472CU, 0x75B7U, 0x643EU,
+    0x9CC9U, 0x8D40U, 0xBFDBU, 0xAE52U, 0xDAEDU, 0xCB64U, 0xF9FFU, 0xE876U,
+    0x2102U, 0x308BU, 0x0210U, 0x1399U, 0x6726U, 0x76AFU, 0x4434U, 0x55BDU,
+    0xAD4AU, 0xBCC3U, 0x8E58U, 0x9FD1U, 0xEB6EU, 0xFAE7U, 0xC87CU, 0xD9F5U,
+    0x3183U, 0x200AU, 0x1291U, 0x0318U, 0x77A7U, 0x662EU, 0x54B5U, 0x453CU,
+    0xBDCBU, 0xAC42U, 0x9ED9U, 0x8F50U, 0xFBEFU, 0xEA66U, 0xD8FDU, 0xC974U,
+    0x4204U, 0x538DU, 0x6116U, 0x709FU, 0x0420U, 0x15A9U, 0x2732U, 0x36BBU,
+    0xCE4CU, 0xDFC5U, 0xED5EU, 0xFCD7U, 0x8868U, 0x99E1U, 0xAB7AU, 0xBAF3U,
+    0x5285U, 0x430CU, 0x7197U, 0x601EU, 0x14A1U, 0x0528U, 0x37B3U, 0x263AU,
+    0xDECDU, 0xCF44U, 0xFDDFU, 0xEC56U, 0x98E9U, 0x8960U, 0xBBFBU, 0xAA72U,
+    0x6306U, 0x728FU, 0x4014U, 0x519DU, 0x2522U, 0x34ABU, 0x0630U, 0x17B9U,
+    0xEF4EU, 0xFEC7U, 0xCC5CU, 0xDDD5U, 0xA96AU, 0xB8E3U, 0x8A78U, 0x9BF1U,
+    0x7387U, 0x620EU, 0x5095U, 0x411CU, 0x35A3U, 0x242AU, 0x16B1U, 0x0738U,
+    0xFFCFU, 0xEE46U, 0xDCDDU, 0xCD54U, 0xB9EBU, 0xA862U, 0x9AF9U, 0x8B70U,
+    0x8408U, 0x9581U, 0xA71AU, 0xB693U, 0xC22CU, 0xD3A5U, 0xE13EU, 0xF0B7U,
+    0x0840U, 0x19C9U, 0x2B52U, 0x3ADBU, 0x4E64U, 0x5FEDU, 0x6D76U, 0x7CFFU,
+    0x9489U, 0x8500U, 0xB79BU, 0xA612U, 0xD2ADU, 0xC324U, 0xF1BFU, 0xE036U,
+    0x18C1U, 0x0948U, 0x3BD3U, 0x2A5AU, 0x5EE5U, 0x4F6CU, 0x7DF7U, 0x6C7EU,
+    0xA50AU, 0xB483U, 0x8618U, 0x9791U, 0xE32EU, 0xF2A7U, 0xC03CU, 0xD1B5U,
+    0x2942U, 0x38CBU, 0x0A50U, 0x1BD9U, 0x6F66U, 0x7EEFU, 0x4C74U, 0x5DFDU,
+    0xB58BU, 0xA402U, 0x9699U, 0x8710U, 0xF3AFU, 0xE226U, 0xD0BDU, 0xC134U,
+    0x39C3U, 0x284AU, 0x1AD1U, 0x0B58U, 0x7FE7U, 0x6E6EU, 0x5CF5U, 0x4D7CU,
+    0xC60CU, 0xD785U, 0xE51EU, 0xF497U, 0x8028U, 0x91A1U, 0xA33AU, 0xB2B3U,
+    0x4A44U, 0x5BCDU, 0x6956U, 0x78DFU, 0x0C60U, 0x1DE9U, 0x2F72U, 0x3EFBU,
+    0xD68DU, 0xC704U, 0xF59FU, 0xE416U, 0x90A9U, 0x8120U, 0xB3BBU, 0xA232U,
+    0x5AC5U, 0x4B4CU, 0x79D7U, 0x685EU, 0x1CE1U, 0x0D68U, 0x3FF3U, 0x2E7AU,
+    0xE70EU, 0xF687U, 0xC41CU, 0xD595U, 0xA12AU, 0xB0A3U, 0x8238U, 0x93B1U,
+    0x6B46U, 0x7ACFU, 0x4854U, 0x59DDU, 0x2D62U, 0x3CEBU, 0x0E70U, 0x1FF9U,
+    0xF78FU, 0xE606U, 0xD49DU, 0xC514U, 0xB1ABU, 0xA022U, 0x92B9U, 0x8330U,
+    0x7BC7U, 0x6A4EU, 0x58D5U, 0x495CU, 0x3DE3U, 0x2C6AU, 0x1EF1U, 0x0F78U };
 
 const uint16_t CCITT16_TABLE2[] = {
     0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7,
@@ -153,42 +153,43 @@ const uint16_t CCITT16_TABLE2[] = {
     0x6E17, 0x7E36, 0x4E55, 0x5E74, 0x2E93, 0x3EB2, 0x0ED1, 0x1EF0 };
 
 const uint32_t CRC32_TABLE[] = {
-    0x00000000, 0x04C11DB5, 0x09823B6A, 0x0D4326DF, 0x130476D4, 0x17C56B61, 0x1A864DBE, 0x1E47500B,
-    0x2608EDA8, 0x22C9F01D, 0x2F8AD6C2, 0x2B4BCB77, 0x350C9B7C, 0x31CD86C9, 0x3C8EA016, 0x384FBDA3,
-    0x4C11DB50, 0x48D0C6E5, 0x4593E03A, 0x4152FD8F, 0x5F15AD84, 0x5BD4B031, 0x569796EE, 0x52568B5B,
-    0x6A1936F8, 0x6ED82B4D, 0x639B0D92, 0x675A1027, 0x791D402C, 0x7DDC5D99, 0x709F7B46, 0x745E66F3,
-    0x9823B6A0, 0x9CE2AB15, 0x91A18DCA, 0x9560907F, 0x8B27C074, 0x8FE6DDC1, 0x82A5FB1E, 0x8664E6AB,
-    0xBE2B5B08, 0xBAEA46BD, 0xB7A96062, 0xB3687DD7, 0xAD2F2DDC, 0xA9EE3069, 0xA4AD16B6, 0xA06C0B03,
-    0xD4326DF0, 0xD0F37045, 0xDDB0569A, 0xD9714B2F, 0xC7361B24, 0xC3F70691, 0xCEB4204E, 0xCA753DFB,
-    0xF23A8058, 0xF6FB9DED, 0xFBB8BB32, 0xFF79A687, 0xE13EF68C, 0xE5FFEB39, 0xE8BCCDE6, 0xEC7DD053,
-    0x348670F5, 0x30476D40, 0x3D044B9F, 0x39C5562A, 0x27820621, 0x23431B94, 0x2E003D4B, 0x2AC120FE,
-    0x128E9D5D, 0x164F80E8, 0x1B0CA637, 0x1FCDBB82, 0x018AEB89, 0x054BF63C, 0x0808D0E3, 0x0CC9CD56,
-    0x7897ABA5, 0x7C56B610, 0x711590CF, 0x75D48D7A, 0x6B93DD71, 0x6F52C0C4, 0x6211E61B, 0x66D0FBAE,
-    0x5E9F460D, 0x5A5E5BB8, 0x571D7D67, 0x53DC60D2, 0x4D9B30D9, 0x495A2D6C, 0x44190BB3, 0x40D81606,
-    0xACA5C655, 0xA864DBE0, 0xA527FD3F, 0xA1E6E08A, 0xBFA1B081, 0xBB60AD34, 0xB6238BEB, 0xB2E2965E,
-    0x8AAD2BFD, 0x8E6C3648, 0x832F1097, 0x87EE0D22, 0x99A95D29, 0x9D68409C, 0x902B6643, 0x94EA7BF6,
-    0xE0B41D05, 0xE47500B0, 0xE936266F, 0xEDF73BDA, 0xF3B06BD1, 0xF7717664, 0xFA3250BB, 0xFEF34D0E,
-    0xC6BCF0AD, 0xC27DED18, 0xCF3ECBC7, 0xCBFFD672, 0xD5B88679, 0xD1799BCC, 0xDC3ABD13, 0xD8FBA0A6,
-    0x690CE1EA, 0x6DCDFC5F, 0x608EDA80, 0x644FC735, 0x7A08973E, 0x7EC98A8B, 0x738AAC54, 0x774BB1E1,
-    0x4F040C42, 0x4BC511F7, 0x46863728, 0x42472A9D, 0x5C007A96, 0x58C16723, 0x558241FC, 0x51435C49,
-    0x251D3ABA, 0x21DC270F, 0x2C9F01D0, 0x285E1C65, 0x36194C6E, 0x32D851DB, 0x3F9B7704, 0x3B5A6AB1,
-    0x0315D712, 0x07D4CAA7, 0x0A97EC78, 0x0E56F1CD, 0x1011A1C6, 0x14D0BC73, 0x19939AAC, 0x1D528719,
-    0xF12F574A, 0xF5EE4AFF, 0xF8AD6C20, 0xFC6C7195, 0xE22B219E, 0xE6EA3C2B, 0xEBA91AF4, 0xEF680741,
-    0xD727BAE2, 0xD3E6A757, 0xDEA58188, 0xDA649C3D, 0xC423CC36, 0xC0E2D183, 0xCDA1F75C, 0xC960EAE9,
-    0xBD3E8C1A, 0xB9FF91AF, 0xB4BCB770, 0xB07DAAC5, 0xAE3AFACE, 0xAAFBE77B, 0xA7B8C1A4, 0xA379DC11,
-    0x9B3661B2, 0x9FF77C07, 0x92B45AD8, 0x9675476D, 0x88321766, 0x8CF30AD3, 0x81B02C0C, 0x857131B9,
-    0x5D8A911F, 0x594B8CAA, 0x5408AA75, 0x50C9B7C0, 0x4E8EE7CB, 0x4A4FFA7E, 0x470CDCA1, 0x43CDC114,
-    0x7B827CB7, 0x7F436102, 0x720047DD, 0x76C15A68, 0x68860A63, 0x6C4717D6, 0x61043109, 0x65C52CBC,
-    0x119B4A4F, 0x155A57FA, 0x18197125, 0x1CD86C90, 0x029F3C9B, 0x065E212E, 0x0B1D07F1, 0x0FDC1A44,
-    0x3793A7E7, 0x3352BA52, 0x3E119C8D, 0x3AD08138, 0x2497D133, 0x2056CC86, 0x2D15EA59, 0x29D4F7EC,
-    0xC5A927BF, 0xC1683A0A, 0xCC2B1CD5, 0xC8EA0160, 0xD6AD516B, 0xD26C4CDE, 0xDF2F6A01, 0xDBEE77B4,
-    0xE3A1CA17, 0xE760D7A2, 0xEA23F17D, 0xEEE2ECC8, 0xF0A5BCC3, 0xF464A176, 0xF92787A9, 0xFDE69A1C,
-    0x89B8FCEF, 0x8D79E15A, 0x803AC785, 0x84FBDA30, 0x9ABC8A3B, 0x9E7D978E, 0x933EB151, 0x97FFACE4,
-    0xAFB01147, 0xAB710CF2, 0xA6322A2D, 0xA2F33798, 0xBCB46793, 0xB8757A26, 0xB5365CF9, 0xB1F7414C };
+    0x00000000, 0x04C11DB7, 0x09823B6E, 0x0D4326D9, 0x130476DC, 0x17C56B6B, 0x1A864DB2, 0x1E475005,
+    0x2608EDB8, 0x22C9F00F, 0x2F8AD6D6, 0x2B4BCB61, 0x350C9B64, 0x31CD86D3, 0x3C8EA00A, 0x384FBDBD,
+    0x4C11DB70, 0x48D0C6C7, 0x4593E01E, 0x4152FDA9, 0x5F15ADAC, 0x5BD4B01B, 0x569796C2, 0x52568B75,
+    0x6A1936C8, 0x6ED82B7F, 0x639B0DA6, 0x675A1011, 0x791D4014, 0x7DDC5DA3, 0x709F7B7A, 0x745E66CD,
+    0x9823B6E0, 0x9CE2AB57, 0x91A18D8E, 0x95609039, 0x8B27C03C, 0x8FE6DD8B, 0x82A5FB52, 0x8664E6E5,
+    0xBE2B5B58, 0xBAEA46EF, 0xB7A96036, 0xB3687D81, 0xAD2F2D84, 0xA9EE3033, 0xA4AD16EA, 0xA06C0B5D,
+    0xD4326D90, 0xD0F37027, 0xDDB056FE, 0xD9714B49, 0xC7361B4C, 0xC3F706FB, 0xCEB42022, 0xCA753D95,
+    0xF23A8028, 0xF6FB9D9F, 0xFBB8BB46, 0xFF79A6F1, 0xE13EF6F4, 0xE5FFEB43, 0xE8BCCD9A, 0xEC7DD02D,
+    0x34867077, 0x30476DC0, 0x3D044B19, 0x39C556AE, 0x278206AB, 0x23431B1C, 0x2E003DC5, 0x2AC12072,
+    0x128E9DCF, 0x164F8078, 0x1B0CA6A1, 0x1FCDBB16, 0x018AEB13, 0x054BF6A4, 0x0808D07D, 0x0CC9CDCA,
+    0x7897AB07, 0x7C56B6B0, 0x71159069, 0x75D48DDE, 0x6B93DDDB, 0x6F52C06C, 0x6211E6B5, 0x66D0FB02,
+    0x5E9F46BF, 0x5A5E5B08, 0x571D7DD1, 0x53DC6066, 0x4D9B3063, 0x495A2DD4, 0x44190B0D, 0x40D816BA,
+    0xACA5C697, 0xA864DB20, 0xA527FDF9, 0xA1E6E04E, 0xBFA1B04B, 0xBB60ADFC, 0xB6238B25, 0xB2E29692,
+    0x8AAD2B2F, 0x8E6C3698, 0x832F1041, 0x87EE0DF6, 0x99A95DF3, 0x9D684044, 0x902B669D, 0x94EA7B2A,
+    0xE0B41DE7, 0xE4750050, 0xE9362689, 0xEDF73B3E, 0xF3B06B3B, 0xF771768C, 0xFA325055, 0xFEF34DE2,
+    0xC6BCF05F, 0xC27DEDE8, 0xCF3ECB31, 0xCBFFD686, 0xD5B88683, 0xD1799B34, 0xDC3ABDED, 0xD8FBA05A,
+    0x690CE0EE, 0x6DCDFD59, 0x608EDB80, 0x644FC637, 0x7A089632, 0x7EC98B85, 0x738AAD5C, 0x774BB0EB,
+    0x4F040D56, 0x4BC510E1, 0x46863638, 0x42472B8F, 0x5C007B8A, 0x58C1663D, 0x558240E4, 0x51435D53,
+    0x251D3B9E, 0x21DC2629, 0x2C9F00F0, 0x285E1D47, 0x36194D42, 0x32D850F5, 0x3F9B762C, 0x3B5A6B9B,
+    0x0315D626, 0x07D4CB91, 0x0A97ED48, 0x0E56F0FF, 0x1011A0FA, 0x14D0BD4D, 0x19939B94, 0x1D528623,
+    0xF12F560E, 0xF5EE4BB9, 0xF8AD6D60, 0xFC6C70D7, 0xE22B20D2, 0xE6EA3D65, 0xEBA91BBC, 0xEF68060B,
+    0xD727BBB6, 0xD3E6A601, 0xDEA580D8, 0xDA649D6F, 0xC423CD6A, 0xC0E2D0DD, 0xCDA1F604, 0xC960EBB3,
+    0xBD3E8D7E, 0xB9FF90C9, 0xB4BCB610, 0xB07DABA7, 0xAE3AFBA2, 0xAAFBE615, 0xA7B8C0CC, 0xA379DD7B,
+    0x9B3660C6, 0x9FF77D71, 0x92B45BA8, 0x9675461F, 0x8832161A, 0x8CF30BAD, 0x81B02D74, 0x857130C3,
+    0x5D8A9099, 0x594B8D2E, 0x5408ABF7, 0x50C9B640, 0x4E8EE645, 0x4A4FFBF2, 0x470CDD2B, 0x43CDC09C,
+    0x7B827D21, 0x7F436096, 0x7200464F, 0x76C15BF8, 0x68860BFD, 0x6C47164A, 0x61043093, 0x65C52D24,
+    0x119B4BE9, 0x155A565E, 0x18197087, 0x1CD86D30, 0x029F3D35, 0x065E2082, 0x0B1D065B, 0x0FDC1BEC,
+    0x3793A651, 0x3352BBE6, 0x3E119D3F, 0x3AD08088, 0x2497D08D, 0x2056CD3A, 0x2D15EBE3, 0x29D4F654,
+    0xC5A92679, 0xC1683BCE, 0xCC2B1D17, 0xC8EA00A0, 0xD6AD50A5, 0xD26C4D12, 0xDF2F6BCB, 0xDBEE767C,
+    0xE3A1CBC1, 0xE760D676, 0xEA23F0AF, 0xEEE2ED18, 0xF0A5BD1D, 0xF464A0AA, 0xF9278673, 0xFDE69BC4,
+    0x89B8FD09, 0x8D79E0BE, 0x803AC667, 0x84FBDBD0, 0x9ABC8BD5, 0x9E7D9662, 0x933EB0BB, 0x97FFAD0C,
+    0xAFB010B1, 0xAB710D06, 0xA6322BDF, 0xA2F33668, 0xBCB4666D, 0xB8757BDA, 0xB5365D03, 0xB1F740B4 };
 
 // ---------------------------------------------------------------------------
 //  Static Class Members
 // ---------------------------------------------------------------------------
+
 /// <summary>
 /// Check 5-bit CRC.
 /// </summary>
@@ -197,7 +198,7 @@ const uint32_t CRC32_TABLE[] = {
 /// <returns>True, if CRC is valid, otherwise false.</returns>
 bool CRC::checkFiveBit(bool* in, uint32_t tcrc)
 {
-    assert(in != NULL);
+    assert(in != nullptr);
 
     uint32_t crc;
     encodeFiveBit(in, crc);
@@ -212,7 +213,7 @@ bool CRC::checkFiveBit(bool* in, uint32_t tcrc)
 /// <param name="tcrc">Computed CRC.</param>
 void CRC::encodeFiveBit(const bool* in, uint32_t& tcrc)
 {
-    assert(in != NULL);
+    assert(in != nullptr);
 
     uint16_t total = 0U;
     for (uint32_t i = 0U; i < 72U; i += 8U) {
@@ -235,7 +236,7 @@ void CRC::encodeFiveBit(const bool* in, uint32_t& tcrc)
 /// <returns>True, if CRC is valid, otherwise false.</returns>
 bool CRC::checkCCITT162(const uint8_t *in, uint32_t length)
 {
-    assert(in != NULL);
+    assert(in != nullptr);
     assert(length > 2U);
 
     union {
@@ -249,6 +250,11 @@ bool CRC::checkCCITT162(const uint8_t *in, uint32_t length)
         crc16 = (uint16_t(crc8[0U]) << 8) ^ CCITT16_TABLE2[crc8[1U] ^ in[i]];
 
     crc16 = ~crc16;
+
+#if DEBUG_CRC
+    uint16_t inCrc = (in[length - 2U] << 8) | (in[length - 1U] << 0);
+    LogDebug(LOG_HOST, "CRC::checkCCITT161(), crc = $%04X, in = $%04X, len = %u", crc16, inCrc, length);
+#endif
 
     return crc8[0U] == in[length - 1U] && crc8[1U] == in[length - 2U];
 }
@@ -261,7 +267,7 @@ bool CRC::checkCCITT162(const uint8_t *in, uint32_t length)
 /// <param name="length">Length of byte array.</param>
 void CRC::addCCITT162(uint8_t* in, uint32_t length)
 {
-    assert(in != NULL);
+    assert(in != nullptr);
     assert(length > 2U);
 
     union {
@@ -275,6 +281,10 @@ void CRC::addCCITT162(uint8_t* in, uint32_t length)
         crc16 = (uint16_t(crc8[0U]) << 8) ^ CCITT16_TABLE2[crc8[1U] ^ in[i]];
 
     crc16 = ~crc16;
+
+#if DEBUG_CRC
+    LogDebug(LOG_HOST, "CRC::addCCITT162(), crc = $%04X, len = %u", crc16, length);
+#endif
 
     in[length - 1U] = crc8[0U];
     in[length - 2U] = crc8[1U];
@@ -289,7 +299,7 @@ void CRC::addCCITT162(uint8_t* in, uint32_t length)
 /// <returns>True, if CRC is valid, otherwise false.</returns>
 bool CRC::checkCCITT161(const uint8_t *in, uint32_t length)
 {
-    assert(in != NULL);
+    assert(in != nullptr);
     assert(length > 2U);
 
     union {
@@ -303,6 +313,11 @@ bool CRC::checkCCITT161(const uint8_t *in, uint32_t length)
         crc16 = uint16_t(crc8[1U]) ^ CCITT16_TABLE1[crc8[0U] ^ in[i]];
 
     crc16 = ~crc16;
+
+#if DEBUG_CRC
+    uint16_t inCrc = (in[length - 2U] << 8) | (in[length - 1U] << 0);
+    LogDebug(LOG_HOST, "CRC::checkCCITT161(), crc = $%04X, in = $%04X, len = %u", crc16, inCrc, length);
+#endif
 
     return crc8[0U] == in[length - 2U] && crc8[1U] == in[length - 1U];
 }
@@ -315,7 +330,7 @@ bool CRC::checkCCITT161(const uint8_t *in, uint32_t length)
 /// <param name="length">Length of byte array.</param>
 void CRC::addCCITT161(uint8_t* in, uint32_t length)
 {
-    assert(in != NULL);
+    assert(in != nullptr);
     assert(length > 2U);
 
     union {
@@ -329,6 +344,10 @@ void CRC::addCCITT161(uint8_t* in, uint32_t length)
         crc16 = uint16_t(crc8[1U]) ^ CCITT16_TABLE1[crc8[0U] ^ in[i]];
 
     crc16 = ~crc16;
+
+#if DEBUG_CRC
+    LogDebug(LOG_HOST, "CRC::addCCITT161(), crc = $%04X, len = %u", crc16, length);
+#endif
 
     in[length - 2U] = crc8[0U];
     in[length - 1U] = crc8[1U];
@@ -342,7 +361,7 @@ void CRC::addCCITT161(uint8_t* in, uint32_t length)
 /// <returns>True, if CRC is valid, otherwise false.</returns>
 bool CRC::checkCRC32(const uint8_t *in, uint32_t length)
 {
-    assert(in != NULL);
+    assert(in != nullptr);
     assert(length > 4U);
 
     union {
@@ -350,14 +369,23 @@ bool CRC::checkCRC32(const uint8_t *in, uint32_t length)
         uint8_t  crc8[4U];
     };
 
-    crc32 = 0xFFFFFFFFU;
+    uint32_t i = 0;
+    crc32 = 0x00000000U;
 
-    for (uint32_t i = 0U; i < (length - 4U); i++)
-        crc32 = (crc32 << 8) ^ CRC32_TABLE[((crc32 >> 24) ^ in[i]) & 0xFF];
+    for (uint32_t j = (length - 4U); j-- > 0; i++) {
+        uint32_t idx = ((crc32 >> 24) ^ in[i]) & 0xFFU;
+        crc32 = (CRC32_TABLE[idx] ^ (crc32 << 8)) & 0xFFFFFFFFU;
+    }
 
     crc32 = ~crc32;
+    crc32 &= 0xFFFFFFFFU;
 
-    return crc8[0U] == in[length - 4U] && crc8[1U] == in[length - 3U] && crc8[2U] == in[length - 2U] && crc8[3U] == in[length - 1U];
+#if DEBUG_CRC
+    uint32_t inCrc = (in[length - 4U] << 24) | (in[length - 3U] << 16) | (in[length - 2U] << 8) | (in[length - 1U] << 0);
+    LogDebug(LOG_HOST, "CRC::checkCRC32(), crc = $%08X, in = $%08X, len = %u", crc32, inCrc, length);
+#endif
+
+    return crc8[0U] == in[length - 1U] && crc8[1U] == in[length - 2U] && crc8[2U] == in[length - 3U] && crc8[3U] == in[length - 4U];
 }
 
 /// <summary>
@@ -367,7 +395,7 @@ bool CRC::checkCRC32(const uint8_t *in, uint32_t length)
 /// <param name="length">Length of byte array.</param>
 void CRC::addCRC32(uint8_t* in, uint32_t length)
 {
-    assert(in != NULL);
+    assert(in != nullptr);
     assert(length > 4U);
 
     union {
@@ -375,17 +403,25 @@ void CRC::addCRC32(uint8_t* in, uint32_t length)
         uint8_t  crc8[4U];
     };
 
-    crc32 = 0xFFFFFFFFU;
+    uint32_t i = 0;
+    crc32 = 0x00000000U;
 
-    for (uint32_t i = 0U; i < (length - 4U); i++)
-        crc32 = (crc32 << 8) ^ CRC32_TABLE[((crc32 >> 24) ^ in[i]) & 0xFF];
+    for (uint32_t j = (length - 4U); j-- > 0; i++) {
+        uint32_t idx = ((crc32 >> 24) ^ in[i]) & 0xFFU;
+        crc32 = (CRC32_TABLE[idx] ^ (crc32 << 8)) & 0xFFFFFFFFU;
+    }
 
     crc32 = ~crc32;
+    crc32 &= 0xFFFFFFFFU;
 
-    in[length - 4U] = crc8[0U];
-    in[length - 3U] = crc8[1U];
-    in[length - 2U] = crc8[2U];
-    in[length - 1U] = crc8[3U];
+#if DEBUG_CRC
+    LogDebug(LOG_HOST, "CRC::addCRC32(), crc = $%08X, len = %u", crc32, length);
+#endif
+
+    in[length - 1U] = crc8[0U];
+    in[length - 2U] = crc8[1U];
+    in[length - 3U] = crc8[2U];
+    in[length - 4U] = crc8[3U];
 }
 
 /// <summary>
@@ -396,12 +432,16 @@ void CRC::addCRC32(uint8_t* in, uint32_t length)
 /// <returns>Calculated 8-bit CRC value.</returns>
 uint8_t CRC::crc8(const uint8_t *in, uint32_t length)
 {
-    assert(in != NULL);
+    assert(in != nullptr);
 
     uint8_t crc = 0U;
 
     for (uint32_t i = 0U; i < length; i++)
         crc = CRC8_TABLE[crc ^ in[i]];
+
+#if DEBUG_CRC
+    LogDebug(LOG_HOST, "CRC::crc8(), crc = $%02X, len = %u", crc, length);
+#endif
 
     return crc;
 }
@@ -410,24 +450,358 @@ uint8_t CRC::crc8(const uint8_t *in, uint32_t length)
 /// Generate 9-bit CRC.
 /// </summary>
 /// <param name="in">Input byte array.</param>
-/// <param name="bitlen">Length of byte array in bits.</param>
+/// <param name="bitLength">Length of byte array in bits.</param>
 /// <returns>Calculated 9-bit CRC value.</returns>
-uint16_t CRC::crc9(const uint8_t* in, uint32_t bitlen)
+uint16_t CRC::crc9(const uint8_t* in, uint32_t bitLength)
 {
-    assert(in != NULL);
+    assert(in != nullptr);
 
     uint16_t crc = 0x00U;
 
-    for (uint32_t i = 0; i < bitlen; i++) {
+    for (uint32_t i = 0; i < bitLength; i++) {
         bool b = READ_BIT(in, i);
         if (b) {
-            crc ^= CRC9_TABLE[i];
+            if (i < 7U) {
+                crc ^= CRC9_TABLE[i];
+            } else if (i > 15) {
+                crc ^= CRC9_TABLE[i - 9];
+            }
         }
     }
 
-    crc = ~crc;
+    // crc = ~crc;
     crc &= 0x1FFU;
     crc ^= 0x1FFU;
 
+#if DEBUG_CRC
+    LogDebug(LOG_HOST, "CRC::crc9(), crc = $%03X, bitlen = %u", crc, bitLength);
+#endif
+    
     return crc;
+}
+
+/// <summary>
+/// Check 6-bit CRC.
+/// </summary>
+/// <param name="in">Input byte array.</param>
+/// <param name="bitLength">Length of byte array in bits.</param>
+/// <returns>True, if CRC is valid, otherwise false.</returns>
+bool CRC::checkCRC6(const uint8_t* in, uint32_t bitLength)
+{
+    assert(in != nullptr);
+
+    uint8_t crc = createCRC6(in, bitLength);
+
+    uint8_t temp[1U];
+    temp[0U] = 0x00U;
+    uint32_t j = bitLength;
+    for (uint32_t i = 2U; i < 8U; i++, j++) {
+        bool b = READ_BIT(in, j);
+        WRITE_BIT(temp, i, b);
+    }
+
+#if DEBUG_CRC
+    uint32_t inCrc = temp[0U];
+    LogDebug(LOG_HOST, "CRC::checkCRC6(), crc = $%04X, in = $%04X, bitlen = %u", crc, inCrc, bitLength);
+#endif
+
+    return crc == temp[0U];
+}
+
+/// <summary>
+/// Encode 6-bit CRC.
+/// </summary>
+/// <param name="in">Input byte array.</param>
+/// <param name="bitLength">Length of byte array in bits.</param>
+/// <returns>True, if CRC is valid, otherwise false.</returns>
+void CRC::addCRC6(uint8_t* in, uint32_t bitLength)
+{
+    assert(in != nullptr);
+
+    uint8_t crc[1U];
+    crc[0U] = createCRC6(in, bitLength);
+
+    uint32_t n = bitLength;
+    for (uint32_t i = 2U; i < 8U; i++, n++) {
+        bool b = READ_BIT(crc, i);
+        WRITE_BIT(in, n, b);
+    }
+
+#if DEBUG_CRC
+    LogDebug(LOG_HOST, "CRC::addCRC6(), crc = $%04X, bitlen = %u", crc[0U], bitLength);
+#endif
+}
+
+/// <summary>
+/// Check 12-bit CRC.
+/// </summary>
+/// <param name="in">Input byte array.</param>
+/// <param name="bitLength">Length of byte array in bits.</param>
+/// <returns>True, if CRC is valid, otherwise false.</returns>
+bool CRC::checkCRC12(const uint8_t* in, uint32_t bitLength)
+{
+    assert(in != nullptr);
+
+    uint16_t crc = createCRC12(in, bitLength);
+    uint8_t temp1[2U];
+    temp1[0U] = (crc >> 8) & 0xFFU;
+    temp1[1U] = (crc >> 0) & 0xFFU;
+
+    uint8_t temp2[2U];
+    temp2[0U] = 0x00U;
+    temp2[1U] = 0x00U;
+    uint32_t j = bitLength;
+    for (uint32_t i = 4U; i < 16U; i++, j++) {
+        bool b = READ_BIT(in, j);
+        WRITE_BIT(temp2, i, b);
+    }
+
+#if DEBUG_CRC
+    uint16_t inCrc = (temp2[0U] << 8) | (temp2[1U] << 0);
+    LogDebug(LOG_HOST, "CRC:checkCRC12(), crc = $%04X, in = $%04X, bitlen = %u", crc, inCrc, bitLength);
+#endif
+
+    return temp1[0U] == temp2[0U] && temp1[1U] == temp2[1U];
+}
+
+/// <summary>
+/// Encode 12-bit CRC.
+/// </summary>
+/// <param name="in">Input byte array.</param>
+/// <param name="bitLength">Length of byte array in bits.</param>
+/// <returns>True, if CRC is valid, otherwise false.</returns>
+void CRC::addCRC12(uint8_t* in, uint32_t bitLength)
+{
+    assert(in != nullptr);
+
+    uint16_t crc = createCRC12(in, bitLength);
+
+    uint8_t temp[2U];
+    temp[0U] = (crc >> 8) & 0xFFU;
+    temp[1U] = (crc >> 0) & 0xFFU;
+
+    uint32_t n = bitLength;
+    for (uint32_t i = 4U; i < 16U; i++, n++) {
+        bool b = READ_BIT(temp, i);
+        WRITE_BIT(in, n, b);
+    }
+
+#if DEBUG_CRC
+    LogDebug(LOG_HOST, "CRC::addCRC12(), crc = $%04X, bitlen = %u", crc, bitLength);
+#endif
+}
+
+/// <summary>
+/// Check 15-bit CRC.
+/// </summary>
+/// <param name="in">Input byte array.</param>
+/// <param name="bitLength">Length of byte array in bits.</param>
+/// <returns>True, if CRC is valid, otherwise false.</returns>
+bool CRC::checkCRC15(const uint8_t* in, uint32_t bitLength)
+{
+    assert(in != nullptr);
+
+    uint16_t crc = createCRC15(in, bitLength);
+    uint8_t temp1[2U];
+    temp1[0U] = (crc >> 8) & 0xFFU;
+    temp1[1U] = (crc >> 0) & 0xFFU;
+
+    uint8_t temp2[2U];
+    temp2[0U] = 0x00U;
+    temp2[1U] = 0x00U;
+    uint32_t j = bitLength;
+    for (uint32_t i = 1U; i < 16U; i++, j++) {
+        bool b = READ_BIT(in, j);
+        WRITE_BIT(temp2, i, b);
+    }
+
+#if DEBUG_CRC
+    uint16_t inCrc = (temp2[0U] << 8) | (temp2[1U] << 0);
+    LogDebug(LOG_HOST, "CRC:checkCRC15(), crc = $%04X, in = $%04X, bitlen = %u", crc, inCrc, bitLength);
+#endif
+
+    return temp1[0U] == temp2[0U] && temp1[1U] == temp2[1U];
+}
+
+/// <summary>
+/// Encode 15-bit CRC.
+/// </summary>
+/// <param name="in">Input byte array.</param>
+/// <param name="bitLength">Length of byte array in bits.</param>
+/// <returns>True, if CRC is valid, otherwise false.</returns>
+void CRC::addCRC15(uint8_t* in, uint32_t bitLength)
+{
+    assert(in != nullptr);
+
+    uint16_t crc = createCRC15(in, bitLength);
+
+    uint8_t temp[2U];
+    temp[0U] = (crc >> 8) & 0xFFU;
+    temp[1U] = (crc >> 0) & 0xFFU;
+
+    uint32_t n = bitLength;
+    for (uint32_t i = 1U; i < 16U; i++, n++) {
+        bool b = READ_BIT(temp, i);
+        WRITE_BIT(in, n, b);
+    }
+
+#if DEBUG_CRC
+    LogDebug(LOG_HOST, "CRC::addCRC15(), crc = $%04X, bitlen = %u", crc, bitLength);
+#endif
+}
+
+/// <summary>
+/// Check 16-bit CRC.
+/// </summary>
+/// <param name="in">Input byte array.</param>
+/// <param name="bitLength">Length of byte array in bits.</param>
+/// <returns>True, if CRC is valid, otherwise false.</returns>
+bool CRC::checkCRC16(const uint8_t* in, uint32_t bitLength)
+{
+    assert(in != nullptr);
+
+    uint16_t crc = createCRC16(in, bitLength);
+    uint8_t temp1[2U];
+    temp1[0U] = (crc >> 8) & 0xFFU;
+    temp1[1U] = (crc >> 0) & 0xFFU;
+
+    uint8_t temp2[2U];
+    temp2[0U] = 0x00U;
+    temp2[1U] = 0x00U;
+    uint32_t j = bitLength;
+    for (uint32_t i = 0U; i < 16U; i++, j++) {
+        bool b = READ_BIT(in, j);
+        WRITE_BIT(temp2, i, b);
+    }
+
+#if DEBUG_CRC
+    uint16_t inCrc = (temp2[0U] << 8) | (temp2[1U] << 0);
+    LogDebug(LOG_HOST, "CRC:checkCRC16(), crc = $%04X, in = $%04X, bitlen = %u", crc, inCrc, bitLength);
+#endif
+
+    return temp1[0U] == temp2[0U] && temp1[1U] == temp2[1U];
+}
+
+/// <summary>
+/// Encode 16-bit CRC.
+/// </summary>
+/// <param name="in">Input byte array.</param>
+/// <param name="bitLength">Length of byte array in bits.</param>
+/// <returns>True, if CRC is valid, otherwise false.</returns>
+void CRC::addCRC16(uint8_t* in, uint32_t bitLength)
+{
+    assert(in != nullptr);
+
+    uint16_t crc = createCRC16(in, bitLength);
+
+    uint8_t temp[2U];
+    temp[0U] = (crc >> 8) & 0xFFU;
+    temp[1U] = (crc >> 0) & 0xFFU;
+
+    uint32_t n = bitLength;
+    for (uint32_t i = 0U; i < 16U; i++, n++) {
+        bool b = READ_BIT(temp, i);
+        WRITE_BIT(in, n, b);
+    }
+
+#if DEBUG_CRC
+    LogDebug(LOG_HOST, "CRC::addCRC16(), crc = $%04X, bitlen = %u", crc, bitLength);
+#endif
+}
+
+// ---------------------------------------------------------------------------
+//  Private Static Class Members
+// ---------------------------------------------------------------------------
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="in">Input byte array.</param>
+/// <param name="bitLength">Length of byte array in bits.</param>
+/// <returns></returns>
+uint8_t CRC::createCRC6(const uint8_t* in, uint32_t bitLength)
+{
+    uint8_t crc = 0x3FU;
+
+    for (uint32_t i = 0U; i < bitLength; i++) {
+        bool bit1 = READ_BIT(in, i) != 0x00U;
+        bool bit2 = (crc & 0x20U) == 0x20U;
+
+        crc <<= 1;
+
+        if (bit1 ^ bit2)
+            crc ^= 0x27U;
+    }
+
+    return crc & 0x3FU;
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="in">Input byte array.</param>
+/// <param name="bitLength">Length of byte array in bits.</param>
+/// <returns></returns>
+uint16_t CRC::createCRC12(const uint8_t* in, uint32_t bitLength)
+{
+    uint16_t crc = 0x0FFFU;
+
+    for (uint32_t i = 0U; i < bitLength; i++) {
+        bool bit1 = READ_BIT(in, i) != 0x00U;
+        bool bit2 = (crc & 0x0800U) == 0x0800U;
+
+        crc <<= 1;
+
+        if (bit1 ^ bit2)
+            crc ^= 0x080FU;
+    }
+
+    return crc & 0x0FFFU;
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="in">Input byte array.</param>
+/// <param name="bitLength">Length of byte array in bits.</param>
+/// <returns></returns>
+uint16_t CRC::createCRC15(const uint8_t* in, uint32_t bitLength)
+{
+    uint16_t crc = 0x7FFFU;
+
+    for (uint32_t i = 0U; i < bitLength; i++) {
+        bool bit1 = READ_BIT(in, i) != 0x00U;
+        bool bit2 = (crc & 0x4000U) == 0x4000U;
+
+        crc <<= 1;
+
+        if (bit1 ^ bit2)
+            crc ^= 0x4CC5U;
+    }
+
+    return crc & 0x7FFFU;
+}
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="in">Input byte array.</param>
+/// <param name="bitLength">Length of byte array in bits.</param>
+/// <returns></returns>
+uint16_t CRC::createCRC16(const uint8_t* in, uint32_t bitLength)
+{
+    uint16_t crc = 0x0000U;
+
+    for (uint32_t i = 0U; i < bitLength; i++) {
+        bool bit1 = READ_BIT(in, i) != 0x00U;
+        bool bit2 = (crc & 0x8000U) == 0x8000U;
+
+        crc <<= 1;
+
+        if (bit1 ^ bit2)
+            crc ^= 0x1021U;
+    }
+
+    crc = ~crc;
+    return crc & 0xFFFFU;
 }

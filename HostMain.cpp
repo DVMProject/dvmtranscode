@@ -78,6 +78,8 @@ std::string g_lockFile = std::string(DEFAULT_LOCK_FILE);
 bool g_foreground = false;
 bool g_killed = false;
 
+uint8_t* g_gitHashBytes = nullptr;
+
 // ---------------------------------------------------------------------------
 //  Global Functions
 // ---------------------------------------------------------------------------
@@ -108,7 +110,9 @@ void fatal(const char* msg, ...)
 
 void usage(const char* message, const char* arg)
 {
-    ::fprintf(stdout, __PROG_NAME__ " %s (built %s)\r\n", __VER__, __BUILD__);
+    ::fprintf(stdout, __PROG_NAME__ " %s (built %s)\n", __VER__, __BUILD__);
+    ::fprintf(stdout, "Copyright (c) 2017-2022 DVMProject (https://github.com/dvmproject) Authors.\n");
+    ::fprintf(stdout, "Portions Copyright (c) 2015-2021 by Jonathan Naylor, G4KLX and others\n\n");
     if (message != NULL) {
         ::fprintf(stderr, "%s: ", g_progExe.c_str());
         ::fprintf(stderr, message, arg);
@@ -157,7 +161,9 @@ int checkArgs(int argc, char* argv[])
             p += 2;
         }
         else if (IS("-v")) {
-            ::fprintf(stdout, __PROG_NAME__ " %s (built %s)\r\n", __VER__, __BUILD__);
+            ::fprintf(stdout, __PROG_NAME__ " %s (built %s)\n", __VER__, __BUILD__);
+            ::fprintf(stdout, "Copyright (c) 2017-2022 DVMProject (https://github.com/dvmproject) Authors.\n");
+            ::fprintf(stdout, "Portions Copyright (c) 2015-2021 by Jonathan Naylor, G4KLX and others\n\n");
             if (argc == 2)
                 exit(EXIT_SUCCESS);
         }
@@ -184,6 +190,12 @@ int checkArgs(int argc, char* argv[])
 
 int main(int argc, char** argv)
 {
+    g_gitHashBytes = new uint8_t[4U];
+    ::memset(g_gitHashBytes, 0x00U, 4U);
+
+    uint32_t hash = ::strtoul(__GIT_VER_HASH__, 0, 16);
+    __SET_UINT32(hash, g_gitHashBytes, 0U);
+
     if (argv[0] != NULL && *argv[0] != 0)
         g_progExe = std::string(argv[0]);
 

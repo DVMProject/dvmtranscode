@@ -68,7 +68,7 @@ LC::LC() :
     m_encryptOverride(false),
     m_tsbkVendorSkip(false),
     m_callTimer(0U),
-    m_mi(NULL)
+    m_mi(nullptr)
 {
     m_mi = new uint8_t[P25_MI_LENGTH_BYTES];
 
@@ -141,7 +141,7 @@ LC& LC::operator=(const LC& data)
 /// <returns>True, if HDU was decoded, otherwise false.</returns>
 bool LC::decodeHDU(const uint8_t* data)
 {
-    assert(data != NULL);
+    assert(data != nullptr);
 
     // deinterleave
     uint8_t rs[P25_HDU_LENGTH_BYTES + 1U];
@@ -208,8 +208,8 @@ bool LC::decodeHDU(const uint8_t* data)
 /// <param name="data"></param>
 void LC::encodeHDU(uint8_t * data)
 {
-    assert(data != NULL);
-    assert(m_mi != NULL);
+    assert(data != nullptr);
+    assert(m_mi != nullptr);
 
     uint8_t rs[P25_HDU_LENGTH_BYTES];
     ::memset(rs, 0x00U, P25_HDU_LENGTH_BYTES);
@@ -250,7 +250,7 @@ void LC::encodeHDU(uint8_t * data)
 /// <returns>True, if LDU1 was decoded, otherwise false.</returns>
 bool LC::decodeLDU1(const uint8_t * data)
 {
-    assert(data != NULL);
+    assert(data != nullptr);
 
     uint8_t rs[P25_LDU_LC_LENGTH_BYTES + 1U];
 
@@ -298,7 +298,7 @@ bool LC::decodeLDU1(const uint8_t * data)
 /// <param name="data"></param>
 void LC::encodeLDU1(uint8_t * data)
 {
-    assert(data != NULL);
+    assert(data != nullptr);
 
     uint8_t rs[P25_LDU_LC_LENGTH_BYTES];
     ::memset(rs, 0x00U, P25_LDU_LC_LENGTH_BYTES);
@@ -342,7 +342,7 @@ void LC::encodeLDU1(uint8_t * data)
 /// <returns>True, if LDU2 was decoded, otherwise false.</returns>
 bool LC::decodeLDU2(const uint8_t * data)
 {
-    assert(data != NULL);
+    assert(data != nullptr);
 
     uint8_t rs[P25_LDU_LC_LENGTH_BYTES + 1U];
 
@@ -413,8 +413,8 @@ bool LC::decodeLDU2(const uint8_t * data)
 /// <param name="data"></param>
 void LC::encodeLDU2(uint8_t * data)
 {
-    assert(data != NULL);
-    assert(m_mi != NULL);
+    assert(data != nullptr);
+    assert(m_mi != nullptr);
 
     uint8_t rs[P25_LDU_LC_LENGTH_BYTES];
     ::memset(rs, 0x00U, P25_LDU_LC_LENGTH_BYTES);
@@ -493,7 +493,7 @@ void LC::reset()
 /// <param name="mi"></param>
 void LC::setMI(const uint8_t* mi)
 {
-    assert(mi != NULL);
+    assert(mi != nullptr);
 
     ::memcpy(m_mi, mi, P25_MI_LENGTH_BYTES);
 }
@@ -502,7 +502,7 @@ void LC::setMI(const uint8_t* mi)
 /// <returns></returns>
 void LC::getMI(uint8_t* mi) const
 {
-    assert(mi != NULL);
+    assert(mi != nullptr);
 
     ::memcpy(mi, m_mi, P25_MI_LENGTH_BYTES);
 }
@@ -706,7 +706,10 @@ void LC::decodeHDUGolay(const uint8_t * data, uint8_t * raw)
         uint32_t g0 = 0U;
         for (uint32_t j = 0U; j < 18U; j++)
             g0 = (g0 << 1) | (golay[j] ? 0x01U : 0x00U);
-        uint32_t c0data = edac::Golay24128::decode24128(g0);
+
+        uint32_t c0data = 0U;
+        edac::Golay24128::decode24128(g0, c0data);
+
         for (int j = 5; j >= 0; j--) {
             golay[j] = (c0data & 0x01U) == 0x01U;
             c0data >>= 1;

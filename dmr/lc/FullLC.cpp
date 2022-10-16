@@ -71,7 +71,7 @@ FullLC::~FullLC()
 /// <returns></returns>
 LC* FullLC::decode(const uint8_t* data, uint8_t type)
 {
-    assert(data != NULL);
+    assert(data != nullptr);
 
     // decode BPTC (196,96) FEC
     uint8_t lcData[DMR_LC_HEADER_LENGTH_BYTES];
@@ -92,12 +92,12 @@ LC* FullLC::decode(const uint8_t* data, uint8_t type)
 
         default:
             LogError(LOG_DMR, "Unsupported LC type, type = %d", int(type));
-            return NULL;
+            return nullptr;
     }
 
     // check RS (12,9) FEC
     if (!edac::RS129::check(lcData))
-        return NULL;
+        return nullptr;
 
     return new LC(lcData);
 }
@@ -110,7 +110,7 @@ LC* FullLC::decode(const uint8_t* data, uint8_t type)
 /// <param name="type"></param>
 void FullLC::encode(const LC& lc, uint8_t* data, uint8_t type)
 {
-    assert(data != NULL);
+    assert(data != nullptr);
 
     uint8_t lcData[DMR_LC_HEADER_LENGTH_BYTES];
     lc.getData(lcData);
@@ -149,7 +149,7 @@ void FullLC::encode(const LC& lc, uint8_t* data, uint8_t type)
 /// <returns></returns>
 PrivacyLC* FullLC::decodePI(const uint8_t* data)
 {
-    assert(data != NULL);
+    assert(data != nullptr);
 
     // decode BPTC (196,96) FEC
     uint8_t lcData[DMR_LC_HEADER_LENGTH_BYTES];
@@ -162,7 +162,7 @@ PrivacyLC* FullLC::decodePI(const uint8_t* data)
         lcData[11U] ^= PI_HEADER_CRC_MASK[1U];
 
         if (!edac::CRC::checkCCITT162(lcData, DMR_LC_HEADER_LENGTH_BYTES))
-            return NULL;
+            return nullptr;
 
         // restore the checksum
         lcData[10U] ^= PI_HEADER_CRC_MASK[0U];
@@ -180,7 +180,7 @@ PrivacyLC* FullLC::decodePI(const uint8_t* data)
 /// <param name="type"></param>
 void FullLC::encodePI(const PrivacyLC& lc, uint8_t* data)
 {
-    assert(data != NULL);
+    assert(data != nullptr);
 
     uint8_t lcData[DMR_LC_HEADER_LENGTH_BYTES];
     lc.getData(lcData);

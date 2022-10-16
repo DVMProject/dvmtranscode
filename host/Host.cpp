@@ -63,8 +63,8 @@ using namespace network;
 Host::Host(const std::string& confFile) :
     m_confFile(confFile),
     m_conf(),
-    m_srcNetwork(NULL),
-    m_dstNetwork(NULL),
+    m_srcNetwork(nullptr),
+    m_dstNetwork(nullptr),
     m_srcJitter(360),
     m_dstJitter(360),
     m_p25GainAdjust(0.0f),
@@ -104,7 +104,7 @@ int Host::run()
             ::fatal("cannot read the configuration file, %s\n", m_confFile.c_str());
         }
     }
-    catch (yaml::OperationException e) {
+    catch (yaml::OperationException const& e) {
         ::fatal("cannot read the configuration file, %s", e.message());
     }
 
@@ -174,17 +174,17 @@ int Host::run()
         return EXIT_FAILURE;
 
     // initialize DMR -> P25 transcoder
-    dmr::Transcode* dmrSrcTranscoder = new dmr::Transcode(m_dstNetwork, m_srcNetwork, m_timeout, m_dstJitter, m_p25GainAdjust, m_tcDebug, m_tcVerbose);
-    dmr::Transcode* dmrDstTranscoder = NULL;
+    std::unique_ptr<dmr::Transcode> dmrSrcTranscoder = new_unique(dmr::Transcode, m_dstNetwork, m_srcNetwork, m_timeout, m_dstJitter, m_p25GainAdjust, m_tcDebug, m_tcVerbose);
+    std::unique_ptr<dmr::Transcode> dmrDstTranscoder = nullptr;
     if (m_twoWayTranscode) {
-         dmrDstTranscoder = new dmr::Transcode(m_srcNetwork, m_dstNetwork, m_timeout, m_srcJitter, m_p25GainAdjust, m_tcDebug, m_tcVerbose);
+         dmrDstTranscoder = new_unique(dmr::Transcode, m_srcNetwork, m_dstNetwork, m_timeout, m_srcJitter, m_p25GainAdjust, m_tcDebug, m_tcVerbose);
     }
 
     // initialize P25 -> DMR transcoder
-    p25::Transcode* p25SrcTranscoder = new p25::Transcode(m_srcNetwork, m_dstNetwork, m_timeout, m_dmrGainAdjust, m_tcDebug, m_tcVerbose);
-    p25::Transcode* p25DstTranscoder = NULL;
+    std::unique_ptr<p25::Transcode> p25SrcTranscoder = new_unique(p25::Transcode, m_srcNetwork, m_dstNetwork, m_timeout, m_dmrGainAdjust, m_tcDebug, m_tcVerbose);
+    std::unique_ptr<p25::Transcode> p25DstTranscoder = nullptr;
     if (m_twoWayTranscode) {
-        p25DstTranscoder = new p25::Transcode(m_dstNetwork, m_srcNetwork, m_timeout, m_dmrGainAdjust, m_tcDebug, m_tcVerbose);
+        p25DstTranscoder = new_unique(p25::Transcode, m_dstNetwork, m_srcNetwork, m_timeout, m_dmrGainAdjust, m_tcDebug, m_tcVerbose);
     }
 
     StopWatch stopWatch;
@@ -202,9 +202,9 @@ int Host::run()
 
             elapsedMs += ms;
 
-            if (m_srcNetwork != NULL)
+            if (m_srcNetwork != nullptr)
                 m_srcNetwork->clock(ms);
-            if (m_dstNetwork != NULL)
+            if (m_dstNetwork != nullptr)
                 m_dstNetwork->clock(ms);
 
             if (ms < 2U)
@@ -231,21 +231,21 @@ int Host::run()
         ms = stopWatch.elapsed();
         stopWatch.start();
 
-        if (dmrSrcTranscoder != NULL)
+        if (dmrSrcTranscoder != nullptr)
             dmrSrcTranscoder->clock();
 
-        if (p25SrcTranscoder != NULL)
+        if (p25SrcTranscoder != nullptr)
             p25SrcTranscoder->clock(ms);
 
-        if (dmrDstTranscoder != NULL)
+        if (dmrDstTranscoder != nullptr)
             dmrDstTranscoder->clock();
 
-        if (p25DstTranscoder != NULL)
+        if (p25DstTranscoder != nullptr)
             p25DstTranscoder->clock(ms);
 
-        if (m_srcNetwork != NULL)
+        if (m_srcNetwork != nullptr)
             m_srcNetwork->clock(ms);
-        if (m_dstNetwork != NULL)
+        if (m_dstNetwork != nullptr)
             m_dstNetwork->clock(ms);
 
         if (g_killed) {
@@ -256,28 +256,12 @@ int Host::run()
             Thread::sleep(1U);
     }
 
-    if (dmrSrcTranscoder != NULL) {
-        delete dmrSrcTranscoder;
-    }
-
-    if (dmrDstTranscoder != NULL) {
-        delete dmrDstTranscoder;
-    }
-
-    if (p25SrcTranscoder != NULL) {
-        delete p25SrcTranscoder;
-    }
-
-    if (p25DstTranscoder != NULL) {
-        delete p25DstTranscoder;
-    }
-
-    if (m_srcNetwork != NULL) {
+    if (m_srcNetwork != nullptr) {
         m_srcNetwork->close();
         delete m_srcNetwork;
     }
 
-    if (m_dstNetwork != NULL) {
+    if (m_dstNetwork != nullptr) {
         m_dstNetwork->close();
         delete m_dstNetwork;
     }
@@ -376,7 +360,7 @@ bool Host::createSrcNetwork()
     bool ret = m_srcNetwork->open();
     if (!ret) {
         delete m_srcNetwork;
-        m_srcNetwork = NULL;
+        m_srcNetwork = nullptr;
         LogError(LOG_HOST, "failed to initialize source traffic networking!");
         return false;
     }
@@ -426,7 +410,7 @@ bool Host::createDstNetwork()
     bool ret = m_dstNetwork->open();
     if (!ret) {
         delete m_dstNetwork;
-        m_dstNetwork = NULL;
+        m_dstNetwork = nullptr;
         LogError(LOG_HOST, "failed to initialize destination traffic networking!");
         return false;
     }

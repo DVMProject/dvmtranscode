@@ -554,19 +554,19 @@ static void encodeDmrAMBE(const uint8_t* in, uint8_t* out)
 
     MASK = 0x800000U;
     for (unsigned int i = 0U; i < 24U; i++, MASK >>= 1) {
-        unsigned int aPos = DMR_VC_A_TABLE[i];
+        unsigned int aPos = AMBE_A_TABLE[i];
         WRITE_BIT(out, aPos, a & MASK);
     }
 
     MASK = 0x400000U;
     for (unsigned int i = 0U; i < 23U; i++, MASK >>= 1) {
-        unsigned int bPos = DMR_VC_B_TABLE[i];
+        unsigned int bPos = AMBE_B_TABLE[i];
         WRITE_BIT(out, bPos, b & MASK);
     }
 
     MASK = 0x1000000U;
     for (unsigned int i = 0U; i < 25U; i++, MASK >>= 1) {
-        unsigned int cPos = DMR_VC_C_TABLE[i];
+        unsigned int cPos = AMBE_C_TABLE[i];
         WRITE_BIT(out, cPos, cOrig & MASK);
     }
 }

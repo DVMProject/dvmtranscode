@@ -1,9 +1,9 @@
 /**
-* Digital Voice Modem - Transcode Software
+* Digital Voice Modem - Host Software
 * GPLv2 Open Source. Use is subject to license terms.
 * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 *
-* @package DVM / Transcode Software
+* @package DVM / Host Software
 *
 */
 //

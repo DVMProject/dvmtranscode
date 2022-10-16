@@ -49,13 +49,13 @@ using namespace dmr;
 Transcode::Transcode(network::BaseNetwork* srcNetwork, network::BaseNetwork* dstNetwork, uint32_t timeout, uint32_t jitter, float gainAdjust, bool debug, bool verbose) :
     m_srcNetwork(srcNetwork),
     m_dstNetwork(dstNetwork),
-    m_slot1(NULL),
-    m_slot2(NULL),
+    m_slot1(nullptr),
+    m_slot2(nullptr),
     m_verbose(verbose),
     m_debug(debug)
 {
-    assert(srcNetwork != NULL);
-    assert(dstNetwork != NULL);
+    assert(srcNetwork != nullptr);
+    assert(dstNetwork != nullptr);
 
     Slot::init(jitter, gainAdjust);
     
@@ -77,7 +77,7 @@ Transcode::~Transcode()
 /// </summary>
 void Transcode::clock()
 {
-    if (m_srcNetwork != NULL) {
+    if (m_srcNetwork != nullptr) {
         data::Data data;
         bool ret = m_srcNetwork->readDMR(data);
         if (ret) {

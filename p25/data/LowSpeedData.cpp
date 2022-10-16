@@ -88,7 +88,7 @@ LowSpeedData::~LowSpeedData()
 /// <param name="data"></param>
 void LowSpeedData::process(uint8_t* data)
 {
-    assert(data != NULL);
+    assert(data != nullptr);
 
     uint8_t lsd[4U];
     P25Utils::decode(data, lsd, 1546U, 1578U);
@@ -131,7 +131,7 @@ void LowSpeedData::process(uint8_t* data)
 /// <param name="data"></param>
 void LowSpeedData::encode(uint8_t* data) const
 {
-    assert(data != NULL);
+    assert(data != nullptr);
 
     uint8_t lsd[4U];
     lsd[0U] = m_lsd1;

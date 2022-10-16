@@ -31,6 +31,7 @@
 */
 #include "Defines.h"
 #include "edac/Golay24128.h"
+#include "Utils.h"
 
 using namespace edac;
 
@@ -1080,6 +1081,7 @@ static const uint32_t DECODING_TABLE_23127[] = {
 // ---------------------------------------------------------------------------
 //  Static Class Members
 // ---------------------------------------------------------------------------
+
 /// <summary>
 /// Decode Golay (23,12,7) FEC.
 /// </summary>
@@ -1099,28 +1101,33 @@ uint32_t Golay24128::decode23127(uint32_t code)
 /// Decode Golay (24,12,8) FEC.
 /// </summary>
 /// <param name="code"></param>
+/// <param name="out"></param>
 /// <returns></returns>
-uint32_t Golay24128::decode24128(uint32_t code)
+bool Golay24128::decode24128(uint32_t code, uint32_t& out)
 {
-    return decode23127(code >> 1);
+    uint32_t syndrome = getSyndrome23127(code >> 1);
+    uint32_t error_pattern = DECODING_TABLE_23127[syndrome] << 1;
+
+    out = code ^ error_pattern;
+
+    bool valid = (Utils::countBits32(syndrome) < 3U) || !(Utils::countBits32(out) & 1);
+    out >>= 12;
+
+    return valid;
 }
 
 /// <summary>
 /// Decode Golay (24,12,8) FEC.
 /// </summary>
-/// <param name="data">Golay FEC encoded data byte array</param>
+/// <param name="bytes">Golay FEC encoded data byte array</param>
+/// <param name="out"></param>
 /// <returns></returns>
-uint32_t Golay24128::decode24128(uint8_t* bytes)
+bool Golay24128::decode24128(uint8_t* bytes, uint32_t& out)
 {
-    assert(bytes != NULL);
+    assert(bytes != nullptr);
 
-    uint32_t code = bytes[0U];
-    code <<= 8;
-    code |= bytes[1U];
-    code <<= 8;
-    code |= bytes[2U];
-
-    return decode23127(code >> 1);
+	uint32_t code = (bytes[0U] << 16) | (bytes[1U] << 8) | (bytes[2U] << 0);
+    return decode24128(code, out);
 }
 
 /// <summary>
@@ -1155,8 +1162,8 @@ void Golay24128::decode24128(uint8_t* data, const uint8_t* raw, uint32_t msglen)
         v1 = ((r3 << 16) & 0xff0000) | ((r4 << 8) & 0x00ff00) | ((r5 << 0) & 0x0000ff);
 
         // decode each symbol into a 12-bit symbol
-        m0_hat = decode24128(v0);
-        m1_hat = decode24128(v1);
+        decode24128(v0, m0_hat);
+        decode24128(v1, m1_hat);
 
         // unpack two 12-bit symbols into three 8-bit bytes
         data[i + 0] = ((m0_hat >> 4) & 0xff);
@@ -1177,7 +1184,7 @@ void Golay24128::decode24128(uint8_t* data, const uint8_t* raw, uint32_t msglen)
         v0 = ((r0 << 16) & 0xff0000) | ((r1 << 8) & 0x00ff00) | ((r2) & 0x0000ff);
 
         // decode into a 12-bit symbol
-        m0_hat = decode24128(v0);
+        decode24128(v0, m0_hat);
 
         // retain last 8 bits of 12-bit symbol
         data[i] = m0_hat & 0xff;
@@ -1272,6 +1279,7 @@ void Golay24128::encode24128(uint8_t* data, const uint8_t* raw, uint32_t msglen)
 // ---------------------------------------------------------------------------
 //  Private Static Class Members
 // ---------------------------------------------------------------------------
+
 /// <summary>
 ///
 /// </summary>

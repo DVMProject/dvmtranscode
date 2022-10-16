@@ -64,9 +64,9 @@ BaseNetwork::BaseNetwork(uint32_t localPort, uint32_t id, bool duplex, bool debu
     m_status(NET_STAT_INVALID),
     m_retryTimer(1000U, 10U),
     m_timeoutTimer(1000U, 60U),
-    m_buffer(NULL),
-    m_salt(NULL),
-    m_streamId(NULL),
+    m_buffer(nullptr),
+    m_salt(nullptr),
+    m_streamId(nullptr),
     m_p25StreamId(0U),
     m_rxDMRData(4000U, "DMR Net Buffer"),
     m_rxP25Data(4000U, "P25 Net Buffer"),
@@ -182,12 +182,12 @@ uint8_t* BaseNetwork::readP25(bool& ret, p25::lc::LC& control, p25::data::LowSpe
 {
     if (m_status != NET_STAT_RUNNING && m_status != NET_STAT_MST_RUNNING) {
         ret = false;
-        return NULL;
+        return nullptr;
     }
 
     if (m_rxP25Data.isEmpty()) {
         ret = false;
-        return NULL;
+        return nullptr;
     }
 
     uint8_t length = 0U;
@@ -219,7 +219,7 @@ uint8_t* BaseNetwork::readP25(bool& ret, p25::lc::LC& control, p25::data::LowSpe
     lsd.setLSD1(lsd1);
     lsd.setLSD2(lsd2);
 
-    uint8_t* data = NULL;
+    uint8_t* data = nullptr;
     len = m_buffer[23U];
     if (len <= 24) {
         data = new uint8_t[len];
@@ -457,7 +457,7 @@ bool BaseNetwork::writeP25LDU1(const uint32_t id, const uint32_t streamId, const
     if (m_status != NET_STAT_RUNNING && m_status != NET_STAT_MST_RUNNING)
         return false;
 
-    assert(data != NULL);
+    assert(data != nullptr);
 
     uint8_t serviceOptions =
         (control.getEmergency() ? 0x80U : 0x00U) +
@@ -581,7 +581,7 @@ bool BaseNetwork::writeP25LDU2(const uint32_t id, const uint32_t streamId, const
     if (m_status != NET_STAT_RUNNING && m_status != NET_STAT_MST_RUNNING)
         return false;
 
-    assert(data != NULL);
+    assert(data != nullptr);
 
     uint8_t buffer[DATA_PACKET_LENGTH];
     ::memset(buffer, 0x00U, DATA_PACKET_LENGTH);
@@ -751,7 +751,7 @@ bool BaseNetwork::writeP25TDU(const uint32_t id, const uint32_t streamId, const 
 /// <returns>True, if buffer is written to the network, otherwise false.</returns>
 bool BaseNetwork::write(const uint8_t* data, uint32_t length)
 {
-    assert(data != NULL);
+    assert(data != nullptr);
     assert(length > 0U);
 
     // if (m_debug)

@@ -47,6 +47,8 @@ extern std::string g_lockFile;
 extern bool g_foreground;
 extern bool g_killed;
 
+extern uint8_t* g_gitHashBytes;
+
 extern HOST_SW_API void fatal(const char* msg, ...);
 
 #endif // __HOST_MAIN_H__

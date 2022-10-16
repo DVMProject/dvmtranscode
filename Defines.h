@@ -34,6 +34,7 @@
 #include <stdint.h>
 
 #ifdef __cplusplus
+#include <memory>
 #include <string>
 #include <sstream>
 #include <ios>
@@ -95,9 +96,17 @@ typedef unsigned long long  ulong64_t;
 //  Constants
 // ---------------------------------------------------------------------------
 
+#ifndef __GIT_VER__
+#define __GIT_VER__ "00000000"
+#endif
+#ifndef __GIT_VER_HASH__
+#define __GIT_VER_HASH__ "00000000"
+#endif
+
 #define __PROG_NAME__ "Digital Voice Modem Transcoder"
+#define __NET_NAME__ "TCD_DMR_P25"
 #define __EXE_NAME__ "dvmtranscode"
-#define __VER__ "R01.00.00"
+#define __VER__ "D01.00.00 (" __GIT_VER__ ")"
 #define __BUILD__ __DATE__ " " __TIME__
 
 #define HOST_SW_API 
@@ -186,6 +195,8 @@ inline std::string __FLOAT_STR(const float& value) {
             (buffer[offset + 0U] << 16)     |       \
                 (buffer[offset + 1U] << 8)  |       \
                 (buffer[offset + 2U] << 0);
+
+#define new_unique(type, ...) std::unique_ptr<type>(new type(__VA_ARGS__))
 
 /**
  * Property Creation
