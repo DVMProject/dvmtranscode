@@ -6,12 +6,9 @@ The DVM Transcoder software provides the protocol transcoding from DMR <-> P25.
 
 Please see the various Makefile included in the project for more information. (All following information assumes familiarity with the standard Linux make system.)
 
-The DVM Host software does not have any specific library dependancies and is written to be as library-free as possible. A basic GCC install is usually all thats needed to compile.
+The DVM Transcoder software does not have any specific library dependancies and is written to be as library-free as possible. A basic GCC install is usually all thats needed to compile.
 
-* Makefile - This makefile is used for building binaries for the native installed GCC.
-* Makefile.arm - This makefile is used for cross-compiling for a ARM platform.
-
-Use the ```make``` command to build the software.
+This software packages uses CMake for compilation.
 
 ## License
 
